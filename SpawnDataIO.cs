@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using ArithFeather.ArithsToolKit.SpawnPointTools;
-using Smod2.API;
+using ArithFeather.ArithSpawningKit.SpawnPointTools;
 
 namespace ArithFeather.RandomItemSpawner
 {
-    public static class RoomDataIO
+	public static class RoomDataIO
     {
         public static void LoadItemRoomData(ItemSpawning data, string filePath)
         {
@@ -40,6 +38,12 @@ namespace ArithFeather.RandomItemSpawner
                         }
                     }
 
+					if (uniqueRooms.Count < 38)
+					{
+						File.Delete(filePath);
+						return;
+					}
+
                     string s = "#ItemRarities:";
                     var itemRarities = Enum.GetNames(typeof(ItemRarity));
                     var itemCount = itemRarities.Length;
@@ -50,16 +54,21 @@ namespace ArithFeather.RandomItemSpawner
                     }
                     writer.WriteLine(s + "|");
                     writer.WriteLine("BaseItemSpawnQueue:4,9,4,6,3,4,2,7,4,6,5,1,4,7,2,4,6,9,4,5,2,4,5,4,1,7,2,3,4,6,7,9,8");
-                    writer.WriteLine("SpawnItemsSpawnQueue:0,4,9");
                     writer.WriteLine("NumberItemsOnDeath:5");
                     writer.WriteLine("NumberItemsOnStart:20");
                     writer.WriteLine();
                     writer.WriteLine("#RoomName:NumberOfItemsMax");
                     foreach (CustomRoom room in uniqueRooms)
                     {
-                        writer.WriteLine(room.Name + ":2");
-                    }
-                }
+						writer.WriteLine(room.Name + ":2");
+						data.AddRoomData(room.Name, 2);
+					}
+
+					data.BaseItemSpawnQueue = new int[] { 4, 9, 4, 6, 3, 4, 2, 7, 4, 6, 5, 1, 4, 7, 2, 4, 6, 9, 4, 5, 2, 4, 5, 4, 1, 7, 2, 3, 4, 6, 7, 9, 8 };
+					data.SafeItemsSpawnQueue = new int[] { 0, 4, 9 };
+					data.NumberItemsOnDeath = 5;
+					data.NumberItemsOnStart = 20;
+				}
             }
             else
             {
@@ -89,7 +98,6 @@ namespace ArithFeather.RandomItemSpawner
                         switch (sData[0])
                         {
 	                        case "BaseItemSpawnQueue":
-	                        {
 		                        var items = sData[1].Split(',');
 		                        var itemCount = items.Length;
 		                        int[] intItems = new int[itemCount];
@@ -99,21 +107,6 @@ namespace ArithFeather.RandomItemSpawner
 		                        }
 		                        data.BaseItemSpawnQueue = intItems;
 		                        break;
-	                        }
-
-	                        case "SpawnItemsSpawnQueue":
-	                        {
-		                        var items = sData[1].Split(',');
-		                        var itemCount = items.Length;
-		                        int[] intItems = new int[itemCount];
-		                        for (int i = 0; i < itemCount; i++)
-		                        {
-			                        intItems[i] = int.Parse(items[i]);
-		                        }
-		                        data.SafeItemsSpawnQueue = intItems;
-		                        break;
-	                        }
-
 	                        case "NumberItemsOnDeath":
 		                        data.NumberItemsOnDeath = int.Parse(sData[1]);
 		                        break;

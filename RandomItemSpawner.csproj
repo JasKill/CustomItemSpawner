@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ArithsToolKit">
-      <HintPath>..\..\SCP\ArithsToolKit\obj\Debug\ArithsToolKit.dll</HintPath>
+    <Reference Include="ArithSpawningKit">
+      <HintPath>..\ArithSpawningKit\obj\Debug\ArithSpawningKit.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\SCP\Packages\Assembly-CSharp.dll</HintPath>

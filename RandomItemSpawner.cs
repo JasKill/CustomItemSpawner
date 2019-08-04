@@ -11,10 +11,10 @@ namespace ArithFeather.RandomItemSpawner
 {
 	[PluginDetails(
 		author = "Arith",
-		name = "Scattered Survival",
+		name = "Random Item Spawner",
 		description = "",
-		id = "ArithFeather.ScatteredSurvival",
-		configPrefix = "afss",
+		id = "ArithFeather.RandomItemSpawner",
+		configPrefix = "afris",
 		version = "1.0",
 		SmodMajor = 3,
 		SmodMinor = 4,
@@ -22,7 +22,7 @@ namespace ArithFeather.RandomItemSpawner
 		)]
 	public class RandomItemSpawner : Plugin
 	{
-		[ConfigOption] public bool DisablePlugin = false;
+		[ConfigOption] public bool disablePlugin = false;
 
 		/// <summary>
 		/// Set this to false if you want to program in your own logic for spawning.

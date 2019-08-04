@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using ArithFeather.ArithsToolKit.SpawnPointTools;
+using ArithFeather.ArithSpawningKit.SpawnPointTools;
 using Smod2.API;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -21,11 +21,16 @@ namespace ArithFeather.RandomItemSpawner
 		public List<ItemRoom> Rooms { get; } = new List<ItemRoom>();
 		public readonly List<ItemRoom> FreeRooms = new List<ItemRoom>();
 
+		private int cachedRoomIndex;
+		private bool cachedDidWeSpawnItem;
+
 		private Inventory cachedInventory;
 
 		public void Reset()
 		{
 			baseItemPointer = 0;
+			cachedRoomIndex = 0;
+			cachedDidWeSpawnItem = false;
 			Rooms.Clear();
 			FreeRooms.Clear();
 			cachedInventory = GameObject.Find("Host").GetComponent<Inventory>();
@@ -63,8 +68,7 @@ namespace ArithFeather.RandomItemSpawner
 			return GetRandomRarityItem(rarity);
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static ItemType GetRandomRarityItem(ItemRarity rarity)
+		public static ItemType GetRandomRarityItem(ItemRarity rarity)
 		{
 			switch (rarity)
 			{
@@ -105,42 +109,17 @@ namespace ArithFeather.RandomItemSpawner
 		}
 
 		/// <summary>
-		/// Spawns start-game items.
-		/// </summary>
-		public void LevelLoaded()
-		{
-			FreeRooms.AddRange(Rooms);
-			var roomCount = FreeRooms.Count;
-
-			for (int i = roomCount - 1; i >= 0; i--)
-			{
-				var room = FreeRooms[i];
-				if (room.ItemSpawnPoints.Count == 0)
-				{
-					room.IsFree = false;
-					FreeRooms.RemoveAt(i);
-				}
-				else
-				{
-					room.ItemSpawnPoints.Shuffle();
-				}
-			}
-
-			// Shuffle rooms
-			FreeRooms.Shuffle();
-
-			SpawnItems(NumberItemsOnStart);
-		}
-
-		/// <summary>
-		/// spawns number of times on death.
+		/// Spawns number of items on death.
 		/// </summary>
 		public void PlayerDead() => SpawnItems(NumberItemsOnDeath);
+		/// <summary>
+		/// Spawns number of items on start.
+		/// </summary>
+		public void RoundStart() => SpawnItems(NumberItemsOnStart);
 
 		/// <summary>
 		/// Goes through all the non-free item spawn points to see if they are free, adds them to free list and sets room as free.
 		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CheckSpawns()
 		{
 			var roomCount = Rooms.Count;
@@ -169,67 +148,49 @@ namespace ArithFeather.RandomItemSpawner
 				}
 
 				// Shuffle spawns
-				room.ItemSpawnPoints.Shuffle();
+				if (room.IsFree) room.ItemSpawnPoints.Shuffle();
 			}
 
 			// Shuffle rooms
 			FreeRooms.Shuffle();
+			cachedRoomIndex = 0;
+			cachedDidWeSpawnItem = false;
 		}
 
-		/// <summary>
-		/// Will spawn x number of items in random rooms.
-		/// Items spawn in one room at a time as long as the room has an open spawn.
-		/// </summary>
-		private void SpawnItems(int numberOfItems)
+		/// <param name="numberOfItems">Number of Items to spawn from base spawn queue.</param>
+		/// <param name="zone">Zone to spawn items in. Leave undefined for all.</param>
+		/// <param name="itemType">Optionally spawn a single item type. Leave null to use base spawn queue.</param>
+		/// <param name="onlySafeRooms">Only spawn items in rooms that are accessible without a card.</param>
+		public void SpawnItems(int numberOfItems, ZoneType zone = ZoneType.UNDEFINED, ItemType itemType = ItemType.NULL, bool onlySafeRooms = false)
 		{
-			var roomCount = FreeRooms.Count;
-			int i = 0;
-			bool spawnedItem = false;
+			var usingZone = zone != ZoneType.UNDEFINED;
+			var usingItem = itemType != ItemType.NULL;
 
-			while (roomCount > 0 && numberOfItems > 0)
+			while (FreeRooms.Count > 0 && numberOfItems > 0)
 			{
-				var room = FreeRooms[i];
+				var room = FreeRooms[cachedRoomIndex];
 
-				var spawnPoints = room.ItemSpawnPoints;
-				var pointsLength = spawnPoints.Count;
-
-				for (int n = 0; n < pointsLength; n++)
+				if ((!onlySafeRooms || (onlySafeRooms && room.Room.IsSafe)) &&
+					(!usingZone || (usingZone && room.Room.Zone == zone)))
 				{
-					var spawnPoint = spawnPoints[n];
-
-					if (spawnPoint.IsFree)
+					if (!usingItem)
 					{
-						var itemType = GetNextItem();
-						SpawnItem(itemType, spawnPoint);
-						spawnedItem = true;
-
-						room.CurrentItemsSpawned++;
-						if (room.AtMaxItemSpawns)
-						{
-							room.IsFree = false;
-							FreeRooms.RemoveAt(i);
-							roomCount--;
-							i--;
-						}
-
-						numberOfItems--;
-
-						if (numberOfItems == 0)
-						{
-							return;
-						}
-
-						break;
+						itemType = GetNextItem();
 					}
+
+					SpawnItemInRoom(itemType, room);
+
+					numberOfItems--;
 				}
 
-				i++;
-				if (i == roomCount)
+				cachedRoomIndex++;
+
+				if (cachedRoomIndex == FreeRooms.Count)
 				{
-					if (spawnedItem)
+					if (cachedDidWeSpawnItem)
 					{
-						i = 0;
-						spawnedItem = false;
+						cachedRoomIndex = 0;
+						cachedDidWeSpawnItem = false;
 					}
 					else
 					{
@@ -237,86 +198,72 @@ namespace ArithFeather.RandomItemSpawner
 					}
 				}
 			}
-
 		}
 
 		/// <summary>
-		/// Will spawn all the items in the SafeSpawnQueue in the zone in accessible rooms.
+		/// Use this to spawn a bunch of item types in an array.
 		/// </summary>
-		public void SpawnSafeItems(ZoneType zone, int numberOfSpawns = 1)
+		public void SpawnItems(ItemType[] itemIDs, ZoneType zone = ZoneType.UNDEFINED, bool onlySafeRooms = false)
 		{
-			var roomCount = FreeRooms.Count;
-			int i = 0;
-			bool spawnedItem = false;
+			var usingZone = zone != ZoneType.UNDEFINED;
+			var numberOfItems = itemIDs.Length;
 
-			for (int j = 0; j < numberOfSpawns; j++)
+			while (FreeRooms.Count > 0 && numberOfItems > 0)
 			{
-				var numberOfItems = SafeItemsSpawnQueue.Length;
+				var room = FreeRooms[cachedRoomIndex];
 
-				while (roomCount > 0 && numberOfItems > 0)
+				if ((!onlySafeRooms || (onlySafeRooms && room.Room.IsSafe)) &&
+					(!usingZone || (usingZone && room.Room.Zone == zone)))
 				{
-					var room = FreeRooms[i];
+					numberOfItems--;
+					SpawnItemInRoom(itemIDs[numberOfItems], room);
+				}
 
-					if (room.Room.Zone == zone && room.Room.IsSafe)
+				cachedRoomIndex++;
+
+				if (cachedRoomIndex == FreeRooms.Count)
+				{
+					if (cachedDidWeSpawnItem)
 					{
-						var spawnPoints = room.ItemSpawnPoints;
-						var pointsLength = spawnPoints.Count;
-
-						for (int n = 0; n < pointsLength; n++)
-						{
-							var spawnPoint = spawnPoints[n];
-
-							if (spawnPoint.IsFree)
-							{
-								var itemType = GetRandomRarityItem((ItemRarity)(SafeItemsSpawnQueue[numberOfItems - 1]));
-								SpawnItem(itemType, spawnPoint);
-								spawnedItem = true;
-
-								room.CurrentItemsSpawned++;
-								if (room.AtMaxItemSpawns)
-								{
-									room.IsFree = false;
-									FreeRooms.RemoveAt(i);
-									roomCount--;
-									i--;
-								}
-
-								numberOfItems--;
-								break;
-							}
-						}
+						cachedRoomIndex = 0;
+						cachedDidWeSpawnItem = false;
 					}
-
-					// Stop checking rooms too.
-					i++;
-
-					if (i == roomCount)
+					else
 					{
-						if (spawnedItem)
-						{
-							i = 0;
-							spawnedItem = false;
-						}
-						else
-						{
-							return;
-						}
-					}
-
-					if (numberOfItems == 0)
-					{
-						break;
+						return;
 					}
 				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void SpawnItem(ItemType itemType, ItemSpawnPoint sp)
+		private void SpawnItemInRoom(ItemType itemType, ItemRoom room)
 		{
-			var itemGo = cachedInventory.SetPickup((int)itemType, -4.65664672E+11f, Tools.VecToVec3(sp.Position), Quaternion.Euler(Tools.VecToVec3(sp.Rotation)), 0, 0, 0) ?? throw new ArgumentNullException(nameof(sp));
-			var item = itemGo.GetComponent<Pickup>();
-			sp.ItemPickup = item;
+			var spawnPoints = room.ItemSpawnPoints;
+			var pointsLength = spawnPoints.Count;
+
+			for (int n = 0; n < pointsLength; n++)
+			{
+				var spawnPoint = spawnPoints[n];
+
+				if (spawnPoint.IsFree)
+				{
+					var itemGo = cachedInventory.SetPickup((int)itemType, -4.65664672E+11f, Tools.VecToVec3(spawnPoint.Position), Quaternion.Euler(Tools.VecToVec3(spawnPoint.Rotation)), 0, 0, 0) ?? throw new ArgumentNullException(nameof(spawnPoint));
+					var item = itemGo.GetComponent<Pickup>();
+					spawnPoint.ItemPickup = item;
+					cachedDidWeSpawnItem = true;
+
+					room.CurrentItemsSpawned++;
+					if (room.AtMaxItemSpawns)
+					{
+						room.IsFree = false;
+						FreeRooms.RemoveAt(cachedRoomIndex);
+						cachedRoomIndex--;
+					}
+
+					return;
+				}
+			}
 		}
 	}
 }

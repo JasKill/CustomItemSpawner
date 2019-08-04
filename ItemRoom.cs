@@ -1,4 +1,4 @@
-﻿using ArithFeather.ArithsToolKit.SpawnPointTools;
+﻿using ArithFeather.ArithSpawningKit.SpawnPointTools;
 using System.Collections.Generic;
 
 namespace ArithFeather.RandomItemSpawner

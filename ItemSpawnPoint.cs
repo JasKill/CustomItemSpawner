@@ -1,4 +1,4 @@
-﻿using ArithFeather.ArithsToolKit.SpawnPointTools;
+﻿using ArithFeather.ArithSpawningKit.SpawnPointTools;
 using Smod2.API;
 
 namespace ArithFeather.RandomItemSpawner
@@ -17,6 +17,6 @@ namespace ArithFeather.RandomItemSpawner
             }
             get => itemPickup;
         }
-        public bool IsFree = true;
+        public bool IsFree = false;
     }
 }

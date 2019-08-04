@@ -1,24 +1,19 @@
-﻿using ArithFeather.ArithsToolKit.SpawnPointTools;
-using Smod2;
+﻿using ArithFeather.ArithSpawningKit.SpawnPointTools;
 using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
 using Smod2.EventSystem.Events;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ArithFeather.RandomItemSpawner
 {
-	public class EventHandler : IEventHandlerWaitingForPlayers, IEventHandlerCallCommand, IEventHandlerDecideTeamRespawnQueue, 
-		IEventHandlerRoundStart, IEventHandlerPlayerDie
+	public class EventHandler : IEventHandlerWaitingForPlayers, IEventHandlerCallCommand, 
+		IEventHandlerDecideTeamRespawnQueue, IEventHandlerPlayerDie
 	{
 		private const string ItemSpawnDataFileLocation = "sm_plugins/ATKRandomItemSpawnData.txt";
-		private const string ItemRoomDataFileLocation = "sm_plugins/SSRooms.txt";
+		private const string ItemRoomDataFileLocation = "sm_plugins/ATKItemSpawnRoomData.txt";
 
 		private readonly RandomItemSpawner randomItemSpawner;
 
@@ -32,43 +27,70 @@ namespace ArithFeather.RandomItemSpawner
 		private ItemSpawning itemRoomData;
 		public ItemSpawning ItemRoomData => itemRoomData ?? (itemRoomData = new ItemSpawning());
 
-		private bool isRoundStarted;
-
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
-			if (randomItemSpawner.DisablePlugin)
+			if (randomItemSpawner.disablePlugin)
 			{
 				randomItemSpawner.PluginManager.DisablePlugin(randomItemSpawner);
 				return;
 			}
 
-			debugMode = randomItemSpawner.GetConfigBool("debug_mode");
+			debugMode = randomItemSpawner.ConfigManager.Config.GetBoolValue("sm_debug", false);
 
-			isRoundStarted = false;
-
-			// Load right after getting rooms to set their extra data
+			// Load the room data with the Room Manager API rooms.
 			RoomDataIO.LoadItemRoomData(ItemRoomData, ItemRoomDataFileLocation);
+			// Get all the spawn points.
+			LoadItemData();
 
 			var itemPointCount = ItemSpawnData.Count;
-			var rooms = CustomRoomManager.Instance.Rooms;
+			var rooms = ItemRoomData.Rooms;
 			var roomCount = rooms.Count;
+			var counter = 0;
 
-			// Create item spawn points on map
+			// Make sure every room gets a spawn point assigned to that room's type.
 			for (var j = 0; j < itemPointCount; j++)
 			{
 				var p = ItemSpawnData[j];
 
 				for (var i = 0; i < roomCount; i++)
 				{
-					var r = ItemRoomData.Rooms[i];
+					var r = rooms[i];
 
 					if (p.RoomType != r.Room.Name) continue;
 
+					counter++;
+					r.IsFree = true;
 					r.ItemSpawnPoints.Add(new ItemSpawnPoint(p.RoomType, p.ZoneType,
 						Tools.Vec3ToVec(r.Room.Transform.TransformPoint(Tools.VecToVec3(p.Position))) + new Vector(0, 0.1f, 0),
 						Tools.Vec3ToVec(r.Room.Transform.TransformDirection(Tools.VecToVec3(p.Rotation)))));
 				}
 			}
+
+			if (counter == 0)
+			{
+				randomItemSpawner.Warn("There are no item spawn points set.");
+				return;
+			}
+
+			// Shuffle spawns and rooms
+			// Remove the rooms that have no spawns in them
+			var freeRooms = ItemRoomData.FreeRooms;
+			for (int i = roomCount - 1; i >= 0; i--)
+			{
+				var room = rooms[i];
+
+				if (!room.IsFree)
+				{
+					rooms.RemoveAt(i);
+					freeRooms.RemoveAt(i);
+				}
+				else
+				{
+					room.ItemSpawnPoints.Shuffle();
+				}
+			}
+
+			ItemRoomData.FreeRooms.Shuffle();
 		}
 
 		#region Point Editing
@@ -145,19 +167,11 @@ namespace ArithFeather.RandomItemSpawner
 
 		#endregion
 
-		public void OnRoundStart(RoundStartEvent ev)
-		{
-			if (!randomItemSpawner.UseDefaultEvents) return;
-
-			isRoundStarted = true;
-			ItemRoomData.FreeRooms.AddRange(ItemRoomData.Rooms);
-		}
-
 		public void OnDecideTeamRespawnQueue(DecideRespawnQueueEvent ev)
 		{
 			if (!randomItemSpawner.UseDefaultEvents) return;
 
-			ItemRoomData.LevelLoaded();
+			ItemRoomData.RoundStart();
 		}
 
 		public void OnPlayerDie(PlayerDeathEvent ev)
