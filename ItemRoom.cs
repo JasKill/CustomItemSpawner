@@ -21,7 +21,7 @@ namespace ArithFeather.RandomItemSpawner
 		}
 
 		public int MaxItemsAllowed;
-		public bool IsFree = true;
+		public bool IsFree = false;
 
 		public ItemRoom(CustomRoom room, int maxItemsAllowed)
 		{

@@ -253,7 +253,7 @@ namespace ArithFeather.RandomItemSpawner
 					spawnPoint.ItemPickup = item;
 					cachedDidWeSpawnItem = true;
 
-					room.CurrentItemsSpawned++;
+					room.CurrentItemsSpawned--;
 					if (room.AtMaxItemSpawns)
 					{
 						room.IsFree = false;

@@ -17,6 +17,6 @@ namespace ArithFeather.RandomItemSpawner
             }
             get => itemPickup;
         }
-        public bool IsFree = false;
+        public bool IsFree = true;
     }
 }
