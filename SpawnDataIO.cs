@@ -53,7 +53,7 @@ namespace ArithFeather.RandomItemSpawner
                         s += "|" + item + "=" + i;
                     }
                     writer.WriteLine(s + "|");
-                    writer.WriteLine("BaseItemSpawnQueue:4,9,4,6,3,4,2,7,4,6,5,1,4,7,2,4,6,9,4,5,2,4,5,4,1,7,2,3,4,6,7,9,8");
+                    writer.WriteLine("BaseItemSpawnQueue:4,9,4,6,3,4,2,9,7,4,9,6,5,1,4,7,9,2,4,6,9,4,5,2,4,5,4,9,1,7,2,3,4,6,7,9,8");
                     writer.WriteLine("NumberItemsOnDeath:5");
                     writer.WriteLine("NumberItemsOnStart:20");
                     writer.WriteLine();
