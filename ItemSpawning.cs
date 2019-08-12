@@ -29,8 +29,7 @@ namespace ArithFeather.RandomItemSpawner
 		public void Reset()
 		{
 			baseItemPointer = 0;
-			cachedRoomIndex = 0;
-			cachedDidWeSpawnItem = false;
+			ResetRoomIndexer();
 			Rooms.Clear();
 			FreeRooms.Clear();
 			cachedInventory = GameObject.Find("Host").GetComponent<Inventory>();
@@ -118,6 +117,15 @@ namespace ArithFeather.RandomItemSpawner
 		public void RoundStart() => SpawnItems(NumberItemsOnStart);
 
 		/// <summary>
+		/// Resets the index of the rooms to start from the beginning.
+		/// </summary>
+		public void ResetRoomIndexer()
+		{
+			cachedRoomIndex = 0;
+			cachedDidWeSpawnItem = false;
+		}
+
+		/// <summary>
 		/// Goes through all the non-free item spawn points to see if they are free, adds them to free list and sets room as free.
 		/// </summary>
 		public void CheckSpawns()
@@ -153,8 +161,7 @@ namespace ArithFeather.RandomItemSpawner
 
 			// Shuffle rooms
 			FreeRooms.Shuffle();
-			cachedRoomIndex = 0;
-			cachedDidWeSpawnItem = false;
+			ResetRoomIndexer();
 		}
 
 		/// <param name="numberOfItems">Number of Items to spawn from base spawn queue.</param>
@@ -189,11 +196,11 @@ namespace ArithFeather.RandomItemSpawner
 				{
 					if (cachedDidWeSpawnItem)
 					{
-						cachedRoomIndex = 0;
-						cachedDidWeSpawnItem = false;
+						ResetRoomIndexer();
 					}
 					else
 					{
+						cachedRoomIndex = 0;
 						return;
 					}
 				}
@@ -225,11 +232,11 @@ namespace ArithFeather.RandomItemSpawner
 				{
 					if (cachedDidWeSpawnItem)
 					{
-						cachedRoomIndex = 0;
-						cachedDidWeSpawnItem = false;
+						ResetRoomIndexer();
 					}
 					else
 					{
+						cachedRoomIndex = 0;
 						return;
 					}
 				}

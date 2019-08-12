@@ -38,7 +38,7 @@ namespace ArithFeather.RandomItemSpawner
                         }
                     }
 
-					if (uniqueRooms.Count < 38)
+					if (uniqueRooms.Count < CustomRoomManager.MaxRoomTypes)
 					{
 						File.Delete(filePath);
 						return;
@@ -72,53 +72,70 @@ namespace ArithFeather.RandomItemSpawner
             }
             else
             {
-                using (StreamReader reader = File.OpenText(filePath))
-                {
-                    while (!reader.EndOfStream)
-                    {
-                        var item = reader.ReadLine();
+				try
+				{
+					using (StreamReader reader = File.OpenText(filePath))
+					{
+						while (!reader.EndOfStream)
+						{
+							var item = reader.ReadLine();
 
-                        if (string.IsNullOrWhiteSpace(item))
-                        {
-                            continue;
-                        }
+							if (string.IsNullOrWhiteSpace(item))
+							{
+								continue;
+							}
 
-                        if (item[0] == '#')
-                        {
-                            continue;
-                        }
+							if (item[0] == '#')
+							{
+								continue;
+							}
 
-                        string[] sData = item.Split(':');
+							string[] sData = item.Split(':');
 
-                        if (sData.Length == 0)
-                        {
-                            continue;
-                        }
+							if (sData.Length == 0)
+							{
+								continue;
+							}
 
-                        switch (sData[0])
-                        {
-	                        case "BaseItemSpawnQueue":
-		                        var items = sData[1].Split(',');
-		                        var itemCount = items.Length;
-		                        int[] intItems = new int[itemCount];
-		                        for (int i = 0; i < itemCount; i++)
-		                        {
-			                        intItems[i] = int.Parse(items[i]);
-		                        }
-		                        data.BaseItemSpawnQueue = intItems;
-		                        break;
-	                        case "NumberItemsOnDeath":
-		                        data.NumberItemsOnDeath = int.Parse(sData[1]);
-		                        break;
-	                        case "NumberItemsOnStart":
-		                        data.NumberItemsOnStart = int.Parse(sData[1]);
-		                        break;
-	                        default:
-		                        data.AddRoomData(sData[0], int.Parse(sData[1]));
-		                        break;
-                        }
-                    }
-                }
+							switch (sData[0])
+							{
+								case "BaseItemSpawnQueue":
+									var d = sData[1];
+									if (!string.IsNullOrWhiteSpace(d))
+									{
+										var items = d.Split(',');
+										var itemCount = items.Length;
+										int[] intItems = new int[itemCount];
+										for (int i = 0; i < itemCount; i++)
+										{
+											intItems[i] = int.Parse(items[i]);
+										}
+										data.BaseItemSpawnQueue = intItems;
+									}
+									break;
+								case "NumberItemsOnDeath":
+									if (int.TryParse(sData[1], out int dead))
+									{
+										data.NumberItemsOnDeath = dead;
+									}
+									break;
+								case "NumberItemsOnStart":
+									if (int.TryParse(sData[1], out int start))
+									{
+										data.NumberItemsOnStart = start;
+									}
+									break;
+								default:
+									data.AddRoomData(sData[0], int.Parse(sData[1]));
+									break;
+							}
+						}
+					}
+				}
+				catch
+				{
+					throw new Exception("Something went wrong with Random Item Spawning IO - Probably reading a wrong value from the text document.");
+				}
             }
         }
     }

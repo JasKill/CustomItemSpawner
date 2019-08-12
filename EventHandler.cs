@@ -56,7 +56,7 @@ namespace ArithFeather.RandomItemSpawner
 				{
 					var r = rooms[i];
 
-					if (p.RoomType != r.Room.Name) continue;
+					if (p.ZoneType != r.Room.Zone || p.RoomType != r.Room.Name) continue;
 
 					counter++;
 					r.IsFree = true;
