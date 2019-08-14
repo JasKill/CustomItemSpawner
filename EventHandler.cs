@@ -12,8 +12,8 @@ namespace ArithFeather.RandomItemSpawner
 	public class EventHandler : IEventHandlerWaitingForPlayers, IEventHandlerCallCommand, 
 		IEventHandlerDecideTeamRespawnQueue, IEventHandlerPlayerDie
 	{
-		private const string ItemSpawnDataFileLocation = "sm_plugins/ATKRandomItemSpawnData.txt";
-		private const string ItemRoomDataFileLocation = "sm_plugins/ATKItemSpawnRoomData.txt";
+		private const string ItemSpawnDataFileLocation = "sm_plugins/ASKRandomItemSpawnData.txt";
+		private const string ItemRoomDataFileLocation = "sm_plugins/ASKItemSpawnRoomData.txt";
 
 		private readonly RandomItemSpawner randomItemSpawner;
 
