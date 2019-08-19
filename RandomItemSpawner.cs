@@ -15,7 +15,7 @@ namespace ArithFeather.RandomItemSpawner
 		description = "",
 		id = "ArithFeather.RandomItemSpawner",
 		configPrefix = "afris",
-		version = "1.0",
+		version = "1.1",
 		SmodMajor = 3,
 		SmodMinor = 4,
 		SmodRevision = 0
