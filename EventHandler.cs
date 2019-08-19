@@ -116,7 +116,7 @@ namespace ArithFeather.RandomItemSpawner
 						var v3position = where.point + (Vector3.up * 0.1f);
 						var position = Tools.Vec3ToVec(v3position);
 
-						var closestRoom = FindClosestRoomToPoint(v3position);
+						var closestRoom = Tools.FindRoomAtPoint(v3position);
 						var roomName = closestRoom.Name;
 
 						ItemSpawnData.Add(new SpawnPoint(roomName, closestRoom.Zone, Tools.Vec3ToVec(closestRoom.Transform.InverseTransformPoint(v3position)),
@@ -135,34 +135,6 @@ namespace ArithFeather.RandomItemSpawner
 						break;
 				}
 			}
-		}
-
-		/// <summary>
-		/// Shared between player and item spawn editing.
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private CustomRoom FindClosestRoomToPoint(Vector3 point)
-		{
-			// Find closest room
-			CustomRoom closestRoom = null;
-			float distanceToClosest = 10000;
-
-			var rooms = CustomRoomManager.Instance.Rooms;
-			var roomLength = rooms.Count;
-
-			for (int i = 0; i < roomLength; i++)
-			{
-				var r = rooms[i];
-				var distance = Vector3.Distance(point, r.Transform.position);
-
-				if (distance < distanceToClosest)
-				{
-					closestRoom = r;
-					distanceToClosest = distance;
-				}
-			}
-
-			return closestRoom;
 		}
 
 		#endregion
