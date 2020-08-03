@@ -1,26 +1,20 @@
-﻿using Smod2;
-using Smod2.Attributes;
-using Smod2.Config;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using Exiled.API.Features;
 
 namespace ArithFeather.RandomItemSpawner
 {
-	[PluginDetails(
-		author = "Arith",
-		name = "Random Item Spawner",
-		description = "",
-		id = "ArithFeather.RandomItemSpawner",
-		configPrefix = "afris",
-		version = "1.1",
-		SmodMajor = 3,
-		SmodMinor = 4,
-		SmodRevision = 0
-		)]
-	public class RandomItemSpawner : Plugin
+	//[PluginDetails(
+	//	author = "Arith",
+	//	name = "Random Item Spawner",
+	//	description = "",
+	//	id = "ArithFeather.RandomItemSpawner",
+	//	configPrefix = "afris",
+	//	version = "1.1",
+	//	SmodMajor = 3,
+	//	SmodMinor = 4,
+	//	SmodRevision = 0
+	//	)]
+	public class RandomItemSpawner : Plugin<Config>
 	{
 		[ConfigOption] public bool disablePlugin = false;
 
