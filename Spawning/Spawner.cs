@@ -45,7 +45,6 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 				}
 			}
 
-			Log.Error($"{FreeRooms.Count} left");
 			if (FreeRooms.Count != 0)
 				SpawnStartItems();
 		}
