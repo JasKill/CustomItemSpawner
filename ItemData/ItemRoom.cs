@@ -2,31 +2,27 @@
 using ArithFeather.AriToolKit;
 using ArithFeather.AriToolKit.Components;
 using ArithFeather.CustomItemSpawner.Spawning;
-using UnityEngine;
 
-namespace ArithFeather.CustomItemSpawner.ItemData
-{
-	public class RoomItemComponent
-	{
+namespace ArithFeather.CustomItemSpawner.ItemData {
+	public class ItemRoom {
 
-		public RoomItemComponent(CustomRoom customRoom, List<ItemSpawnPoint> points, List<IItemObtainable> items)
-		{
+		public ItemRoom(CustomRoom customRoom, List<IItemObtainable> items) {
 			CustomRoom = customRoom;
-			Points = points;
 			Items = items;
 		}
 
-		public delegate void RoomIsFree(RoomItemComponent room);
+		public ItemRoom() { }
+
+		public delegate void RoomIsFree(ItemRoom itemRoom);
 		public static event RoomIsFree OnRoomIsFree;
 
 		public readonly CustomRoom CustomRoom;
-		public readonly List<ItemSpawnPoint> Points;
 		public readonly List<IItemObtainable> Items;
+		public List<ItemSpawnPoint> Points;
 
 		public int MaxItemsAllowed { get; set; }
 
-		public void TriggerItemSetFree()
-		{
+		public void TriggerItemSetFree() {
 			if (AtMaxItemSpawns) {
 				OnRoomIsFree?.Invoke(this);
 			}
@@ -41,31 +37,26 @@ namespace ArithFeather.CustomItemSpawner.ItemData
 
 		private readonly Stack<SavedSpawnInfo> _savedSpawns = new Stack<SavedSpawnInfo>();
 
-		public void AddSavedSpawn(ItemSpawnPoint point, ItemType itemType)
-		{
+		public void AddSavedSpawn(ItemSpawnPoint point, ItemType itemType) {
 			_currentItemsSpawned++;
 			point.IsFree = false;
 			_savedSpawns.Push(new SavedSpawnInfo(point, itemType));
 		}
 
-		public void SpawnSavedItems()
-		{
+		public void SpawnSavedItems() {
 			var length = _savedSpawns.Count;
-			for (int i = 0; i < length; i++)
-			{
+			for (int i = 0; i < length; i++) {
 				var spawn = _savedSpawns.Pop();
 				Spawner.SpawnItem(spawn.ItemSpawnPoint, spawn.ItemType);
 			}
 		}
 
-		public readonly struct SavedSpawnInfo
-		{
+		public readonly struct SavedSpawnInfo {
 
 			public readonly ItemSpawnPoint ItemSpawnPoint;
 			public readonly ItemType ItemType;
 
-			public SavedSpawnInfo(ItemSpawnPoint point, ItemType itemType)
-			{
+			public SavedSpawnInfo(ItemSpawnPoint point, ItemType itemType) {
 				ItemSpawnPoint = point;
 				ItemType = itemType;
 			}
@@ -83,8 +74,7 @@ namespace ArithFeather.CustomItemSpawner.ItemData
 
 			if (AtMaxItemSpawns) return false;
 
-			while (_indexer < Items.Count && !Items[_indexer].HasItems)
-			{
+			while (_indexer < Items.Count && !Items[_indexer].HasItems) {
 				_indexer++;
 			}
 
@@ -97,7 +87,7 @@ namespace ArithFeather.CustomItemSpawner.ItemData
 		}
 
 		private ItemSpawnPoint GetRandomFreePoint() {
-		
+
 			var pointsLength = Points.Count;
 			Points.UnityShuffle();
 

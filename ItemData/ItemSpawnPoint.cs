@@ -1,18 +1,19 @@
-﻿using UnityEngine;
+﻿using ArithFeather.AriToolKit.PointEditor;
+using UnityEngine;
 
 namespace ArithFeather.CustomItemSpawner.ItemData {
 	public class ItemSpawnPoint
 	{
-		public readonly Vector3 Position;
-		public readonly Quaternion Rotation;
+		public Vector3 Position => _fixedPoint.Position;
+		public Quaternion Rotation => _fixedPoint.Rotation;
 
-		private readonly RoomItemComponent _room;
+		private readonly ItemRoom _itemRoom;
+		private readonly FixedPoint _fixedPoint;
 
-		public ItemSpawnPoint(RoomItemComponent room, Vector3 position, Vector3 rotation)
+		public ItemSpawnPoint(ItemRoom itemRoom, FixedPoint fixedPoint)
 		{
-			_room = room;
-			Position = position;
-			Rotation = Quaternion.Euler(rotation);
+			_itemRoom = itemRoom;
+			_fixedPoint = fixedPoint;
 		}
 
 		public bool IsFree = true;
@@ -20,7 +21,7 @@ namespace ArithFeather.CustomItemSpawner.ItemData {
 		public void SetFree()
 		{
 			IsFree = true;
-			_room.TriggerItemSetFree();
+			_itemRoom.TriggerItemSetFree();
 		}
 	}
 }

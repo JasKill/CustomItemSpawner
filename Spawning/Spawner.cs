@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ArithFeather.CustomItemSpawner.ItemData;
-using GameCore;
-using UnityEngine;
 using Log = Exiled.API.Features.Log;
 
 namespace ArithFeather.CustomItemSpawner.Spawning {
 	public class Spawner {
 		public static readonly Spawner Instance = new Spawner();
 
-		private static List<RoomItemComponent> Rooms => SpawnPointCreator.RoomItemsList;
-		private static readonly List<RoomItemComponent> FreeRooms = new List<RoomItemComponent>();
+		private static List<ItemRoom> Rooms => SpawnPointCreator.ItemRooms;
+		private static readonly List<ItemRoom> FreeRooms = new List<ItemRoom>();
 
 		public void Reset() {
 			_cachedInventory = PlayerManager.localPlayer.GetComponent<Inventory>();
@@ -24,6 +23,18 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 					FreeRooms.Add(rooms[i]);
 				}
 			}
+
+			Log.Error($"Item Type has {Enum.GetNames(typeof(ItemType)).Length} values");
+			Log.Error($"This should be none: {(ItemType)(-1)}");
+			Log.Error($"This should be none: {(ItemType)(36)}");
+
+
+
+			//todo randomize queuedlists
+			//var listSize = QueuedListList.Count;
+			//for (int i = 0; i < listSize; i++) {
+			//	QueuedListList[i].Reset();
+			//}
 
 			SpawnStartItems();
 		}
@@ -46,7 +57,10 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 
 		private static Inventory _cachedInventory;
 		public static Pickup SpawnItem(ItemSpawnPoint point, ItemType itemType) {
-			Log.Error($"Spawning {itemType.ToString()}");
+			//Log.Error($"Spawning {itemType.ToString()}");
+
+			if (itemType == ItemType.None) return null;
+
 			var pickup = _cachedInventory.SetPickup(itemType, -4.65664672E+11f, point.Position, point.Rotation, 0, 0, 0);
 			var listener = pickup.gameObject.AddComponent<PickupDisableTrigger>();
 			listener.Initialize(point);

@@ -25,12 +25,10 @@ namespace ArithFeather.CustomItemSpawner.ItemData {
 			{
 				return _itemType;
 			}
-			else
-			{
-				return (ItemType)Random.Range(0, ItemTypeLength);
-			}
+
+			var i = Random.Range(0, ItemTypeLength);
+			return (i == 36) ? ItemType.None : (ItemType) i;
 		}
-		public void Reset() { }
 
 		public bool HasItems => true;
 	}

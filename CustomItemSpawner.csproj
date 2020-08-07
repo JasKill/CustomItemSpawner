@@ -73,9 +73,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Program Files\Unity\Hub\Editor\2019.3.10f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.AudioModule">
-      <HintPath>..\..\..\Program Files\Unity\Hub\Editor\2019.3.10f1\Editor\Data\Managed\UnityEngine\UnityEngine.AudioModule.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Program Files\Unity\Hub\Editor\2019.3.10f1\Editor\Data\Managed\UnityEngine\UnityEngine.CoreModule.dll</HintPath>
@@ -92,8 +89,8 @@
     <Compile Include="BasicConfig.cs" />
     <Compile Include="ItemData\IItemObtainable.cs" />
     <Compile Include="ItemData\ItemList.cs" />
-    <Compile Include="ItemData\RoomItemComponent.cs" />
-    <Compile Include="ItemData\RoomItems.cs" />
+    <Compile Include="ItemData\ItemRoom.cs" />
+    <Compile Include="ItemData\RoomItemData.cs" />
     <Compile Include="ItemData\SavedItemType.cs" />
     <Compile Include="ItemData\PickupDisableTrigger.cs" />
     <Compile Include="ItemSpawnConfig.cs" />

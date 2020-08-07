@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using ArithFeather.AriToolKit;
 using ArithFeather.AriToolKit.PointEditor;
 using ArithFeather.CustomItemSpawner.ItemData;
@@ -52,20 +53,21 @@ namespace ArithFeather.CustomItemSpawner {
 		private void CheckDoorItemSpawn(Door door) {
 			var customDoor = door.GetCustomDoor();
 
-			if (SpawnPointCreator.RoomItems.TryGetValue(customDoor.Room1.Id, out var firstRoom) && !firstRoom.HasBeenEntered) {
-				SpawnObjectsInRoom(firstRoom);
-			}
+			CheckRoomItemsSpawned(customDoor.Room1.Id);
 
-			if (customDoor.HasTwoRooms && SpawnPointCreator.RoomItems.TryGetValue(customDoor.Room2.Id, out var secondRoom) && !secondRoom.HasBeenEntered) {
-				SpawnObjectsInRoom(secondRoom);
+			if (customDoor.HasTwoRooms) {
+				CheckRoomItemsSpawned(customDoor.Room2.Id);
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void SpawnObjectsInRoom(RoomItemComponent room)
-		{
-			room.HasBeenEntered = true;
-			room.SpawnSavedItems();
+		private void CheckRoomItemsSpawned(int id) {
+			var room = SpawnPointCreator.ItemRooms[id];
+
+			if (room != null && !room.HasBeenEntered) {
+				room.HasBeenEntered = true;
+				room.SpawnSavedItems();
+			}
 		}
 	}
 }

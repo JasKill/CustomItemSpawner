@@ -7,10 +7,10 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 	public class EndlessSpawning {
 		public static readonly EndlessSpawning Instance = new EndlessSpawning();
 
-		public EndlessSpawning() => RoomItemComponent.OnRoomIsFree += RoomItemComponent_OnRoomIsFree;
+		public EndlessSpawning() => ItemRoom.OnRoomIsFree += RoomItemComponent_OnRoomIsFree;
 
-		private static List<RoomItemComponent> Rooms => SpawnPointCreator.RoomItemsList;
-		private static readonly List<RoomItemComponent> FreeRooms = new List<RoomItemComponent>();
+		private static List<ItemRoom> Rooms => SpawnPointCreator.ItemRooms;
+		private static readonly List<ItemRoom> FreeRooms = new List<ItemRoom>();
 
 		public void Reset() {
 			FreeRooms.Clear();
@@ -23,11 +23,12 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 			}
 		}
 
-		public void RoomItemComponent_OnRoomIsFree(RoomItemComponent room) => FreeRooms.Insert(Random.Range(0, FreeRooms.Count), room);
+		public void RoomItemComponent_OnRoomIsFree(ItemRoom itemRoom) => FreeRooms.Insert(Random.Range(0, FreeRooms.Count), itemRoom);
 
 		public void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev) {
 			if (ev.Pickup.GetComponent<PickupDisableTrigger>() == null) {
-				Log.Error("Pickup doesn't exist");
+				// If it doesn't exist, it's a default game spawn.
+				//Log.Error("Pickup doesn't exist");
 			} else {
 				ev.Pickup.GetComponent<PickupDisableTrigger>().PickedUp();
 

@@ -11,14 +11,6 @@ namespace ArithFeather.CustomItemSpawner.Patches {
 		public static event DoorDestroyed OnDoorDestroyed;
 
 		private static int lastDoor;
-		//private static bool Prefix(bool b, Door __instance) {
-		//	if (b && __instance.destroyedPrefab != null && __instance.doorType != global::Door.DoorTypes.HeavyGate) {
-		//		lastDoor = __instance.GetInstanceID();
-		//		OnDoorDestroyed?.Invoke(__instance);
-		//	}
-
-		//	return true;
-		//}
 
 		private static void Postfix(Door __instance) {
 			var doorId = __instance.GetInstanceID();
