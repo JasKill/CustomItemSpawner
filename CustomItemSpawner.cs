@@ -26,7 +26,7 @@ namespace ArithFeather.CustomItemSpawner {
 			DestroyedDoorPatch.Enable();
 			StopDoorTriggerPatch.Enable();
 
-			Exiled.Events.Handlers.Player.PickingUpItem += EndlessSpawning.Instance.Player_PickingUpItem;
+			//Exiled.Events.Handlers.Player.PickingUpItem += EndlessSpawning.Instance.Player_PickingUpItem;
 
 			Exiled.Events.Handlers.Server.WaitingForPlayers += Spawner.Instance.Reset;
 
@@ -34,6 +34,15 @@ namespace ArithFeather.CustomItemSpawner {
 		}
 
 		public override void OnDisabled() {
+			PointAPI.OnLoadSpawnPoints -= SpawnPointCreator.OnLoadSpawnPoints;
+
+			DestroyedDoorPatch.OnDoorDestroyed -= CheckDoorItemSpawn;
+			DestroyedDoorPatch.Disable();
+			StopDoorTriggerPatch.Disable();
+
+			//Exiled.Events.Handlers.Player.PickingUpItem -= EndlessSpawning.Instance.Player_PickingUpItem;
+			Exiled.Events.Handlers.Server.WaitingForPlayers -= Spawner.Instance.Reset;
+			Exiled.Events.Handlers.Player.InteractingDoor -= Player_InteractingDoor;
 
 			base.OnDisabled();
 		}

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ArithFeather.CustomItemSpawner.ItemData;
 using Log = Exiled.API.Features.Log;
 
@@ -24,17 +23,13 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 				}
 			}
 
-			Log.Error($"Item Type has {Enum.GetNames(typeof(ItemType)).Length} values");
-			Log.Error($"This should be none: {(ItemType)(-1)}");
-			Log.Error($"This should be none: {(ItemType)(36)}");
-
-
-
-			//todo randomize queuedlists
-			//var listSize = QueuedListList.Count;
-			//for (int i = 0; i < listSize; i++) {
-			//	QueuedListList[i].Reset();
-			//}
+			// Randomize start spawn data
+			UnityEngine.Random.InitState(SpawnPointCreator.CurrentSeed);
+			FreeRooms.ShuffleList();
+			var listSize = SpawnPointCreator.QueuedListList.Count;
+			for (int i = 0; i < listSize; i++) {
+				SpawnPointCreator.QueuedListList[i].Reset();
+			}
 
 			SpawnStartItems();
 		}

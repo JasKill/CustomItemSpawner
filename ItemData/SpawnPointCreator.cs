@@ -27,12 +27,14 @@ namespace ArithFeather.CustomItemSpawner.ItemData {
 		private static readonly Dictionary<string, ItemList> ItemListDictionary = new Dictionary<string, ItemList>();
 		private static readonly Dictionary<string, RoomItemData> RoomItemDictionary = new Dictionary<string, RoomItemData>();
 		// Used for randomizing queue lists
-		private static readonly List<QueuedList> QueuedListList = new List<QueuedList>();
+		public static readonly List<QueuedList> QueuedListList = new List<QueuedList>();
 
 		/// <summary>
 		/// Populated every new game.
 		/// </summary>
 		public static readonly List<ItemRoom> ItemRooms = new List<ItemRoom>();
+
+		public static int CurrentSeed { get; private set; }
 
 		public static void Reload() {
 			LoadItemData();
@@ -52,7 +54,7 @@ namespace ArithFeather.CustomItemSpawner.ItemData {
 				return;
 			}
 
-			UnityEngine.Random.InitState(seed);
+			CurrentSeed = seed;
 			ItemRooms.Clear();
 
 			var rooms = Rooms.CustomRooms;
