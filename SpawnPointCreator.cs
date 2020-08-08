@@ -171,17 +171,17 @@ namespace ArithFeather.CustomItemSpawner {
 		"# First: Spawn all items assigned to spawn. (* and 0 to 36)\n" +
 		"# Example: This will force the HID room to spawn the MicroHID.\n" +
 		"# [Spawn Groups]" +
-		"# Hid:1:16\n" +
+		"# Hid:16\n" +
 		"\n" +
 		"# Second: Spawn an item from a 'Queued List' (Until the Queued list is empty).\n" +
 		"# Example, this will make sure at least 2 checkpoint key cards will spawn somewhere in LCZ.\n" +
 		"# [Queued Lists]\n" +
 		"# SpawnLCZ:3,3\n" +
 		"# [Spawn Groups]\n" +
-		"# LCZ_Toilets:1:SpawnLCZ\n" +
-		"# LCZ_372:1:SpawnLCZ\n" +
-		"# LCZ_Cafe:1:SpawnLCZ\n" +
-		"# LCZ_173:1:SpawnLCZ\n" +
+		"# LCZ_Toilets:SpawnLCZ\n" +
+		"# LCZ_372:SpawnLCZ\n" +
+		"# LCZ_Cafe:SpawnLCZ\n" +
+		"# LCZ_173:SpawnLCZ\n" +
 		"\n" +
 		"# Third: Any 'Item Lists' you attached to the 'Spawn Group' will spawn a random item from that list.\n" +
 		"# Example: You can use this for rarities.\n" +
@@ -189,7 +189,7 @@ namespace ArithFeather.CustomItemSpawner {
 		"# HighRarity:21,25\n" +
 		"# LowRarity:12,14,15\n" +
 		"# [Spawn Groups]\n" +
-		"# LCZ_Armory:5:LowRarity,LowRarity,LowRarity,HighRarity,HighRarity\n" +
+		"# LCZ_Armory:LowRarity,LowRarity,LowRarity,HighRarity,HighRarity\n" +
 		"# (This will spawn 3 random items from the LowRarity list and 2 items from the HighRarity list in Light Containment Armory.\n" +
 		"\n" +
 		"# -Again, the difference between a Queued List and Item List is: A Queued list will spawn all the items inside it, across all the groups it is attached to. Where an Item List will only spawn 1 random item inside the list.\n" +
