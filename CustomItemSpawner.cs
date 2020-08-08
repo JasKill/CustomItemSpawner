@@ -29,6 +29,14 @@ namespace ArithFeather.CustomItemSpawner {
 			Exiled.Events.Handlers.Server.WaitingForPlayers += Spawner.Instance.Reset;
 
 			Exiled.Events.Handlers.Player.InteractingDoor += Player_InteractingDoor;
+			Exiled.Events.Handlers.Scp079.InteractingDoor += Scp079_InteractingDoor;
+		}
+
+		private void Scp079_InteractingDoor(Exiled.Events.EventArgs.InteractingDoorEventArgs ev) {
+			var door = ev.Door;
+			if (ev.IsAllowed && !door.isOpen) {
+				CheckDoorItemSpawn(door);
+			}
 		}
 
 		public override void OnDisabled() {
