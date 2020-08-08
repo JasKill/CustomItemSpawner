@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using ArithFeather.AriToolKit;
 
-namespace ArithFeather.CustomItemSpawner.ItemData {
+namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 	public class QueuedList : IItemObtainable {
 		private List<IItemObtainable> _items;
 		private int _itemSize;

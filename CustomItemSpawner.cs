@@ -1,15 +1,13 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using ArithFeather.AriToolKit;
 using ArithFeather.AriToolKit.PointEditor;
-using ArithFeather.CustomItemSpawner.ItemData;
 using ArithFeather.CustomItemSpawner.Patches;
 using ArithFeather.CustomItemSpawner.Spawning;
 using Exiled.API.Features;
 using Version = System.Version;
 
 namespace ArithFeather.CustomItemSpawner {
-	public class CustomItemSpawner : Plugin<BasicConfig> {
+	public class CustomItemSpawner : Plugin<Config> {
 
 		public CustomItemSpawner() {
 			SpawnPointCreator.Reload();
@@ -71,7 +69,7 @@ namespace ArithFeather.CustomItemSpawner {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void CheckRoomItemsSpawned(int id) {
-			var room = SpawnPointCreator.ItemRooms[id];
+			var room = SavedItemRoom.SavedRooms[id];
 
 			if (room != null && !room.HasBeenEntered) {
 				room.HasBeenEntered = true;

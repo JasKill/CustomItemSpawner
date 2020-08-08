@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
-namespace ArithFeather.CustomItemSpawner.ItemData {
+namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 
 	public class ItemList : IItemObtainable {
 		private List<SavedItemType> _items;

@@ -86,22 +86,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BasicConfig.cs" />
-    <Compile Include="ItemData\IItemObtainable.cs" />
-    <Compile Include="ItemData\ItemList.cs" />
-    <Compile Include="ItemData\ItemRoom.cs" />
-    <Compile Include="ItemData\RoomItemData.cs" />
-    <Compile Include="ItemData\SavedItemType.cs" />
-    <Compile Include="ItemData\PickupDisableTrigger.cs" />
-    <Compile Include="ItemSpawnConfig.cs" />
-    <Compile Include="ItemData\ItemSpawnPoint.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="ItemListTypes\IItemObtainable.cs" />
+    <Compile Include="ItemListTypes\ItemList.cs" />
+    <Compile Include="Spawning\SavedItemRoom.cs" />
+    <Compile Include="SpawnGroup.cs" />
+    <Compile Include="ItemListTypes\SpawnGroupData.cs" />
+    <Compile Include="ItemListTypes\SavedItemType.cs" />
+    <Compile Include="EndlessSpawner\PickupDisableTrigger.cs" />
+    <Compile Include="ItemSpawnPoint.cs" />
     <Compile Include="Patches\DestroyedDoorPatch.cs" />
     <Compile Include="Patches\StopDoorTriggerPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomItemSpawner.cs" />
-    <Compile Include="ItemData\QueuedList.cs" />
-    <Compile Include="ItemData\SpawnPointCreator.cs" />
-    <Compile Include="Spawning\EndlessSpawning.cs" />
+    <Compile Include="ItemListTypes\QueuedList.cs" />
+    <Compile Include="SpawnPointCreator.cs" />
+    <Compile Include="EndlessSpawner\EndlessSpawning.cs" />
     <Compile Include="Spawning\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>

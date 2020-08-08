@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using ArithFeather.CustomItemSpawner.ItemData;
-using Exiled.API.Features;
-using UnityEngine;
-
-namespace ArithFeather.CustomItemSpawner.Spawning {
+﻿namespace ArithFeather.CustomItemSpawner.EndlessSpawner {
 	public class EndlessSpawning {
 		//public static readonly EndlessSpawning Instance = new EndlessSpawning();
 
