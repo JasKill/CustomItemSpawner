@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace ArithFeather.CustomItemSpawner.EndlessSpawner {
+namespace ArithFeather.CustomItemSpawner.EndlessSpawning {
 	public class PickupDisableTrigger : MonoBehaviour
 	{
 		private ItemSpawnPoint _itemSpawnPoint;

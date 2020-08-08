@@ -3,17 +3,11 @@ using ArithFeather.AriToolKit;
 
 namespace ArithFeather.CustomItemSpawner.Spawning {
 	public class SavedItemRoom {
-		public readonly List<SavedSpawnInfo> SavedSpawns = new List<SavedSpawnInfo>();
+		public readonly List<SpawnInfo> SavedSpawns = new List<SpawnInfo>();
 
 		public bool HasBeenEntered { get; set; }
 
-		public void SpawnSavedItems() {
-			var length = SavedSpawns.Count;
-			for (int i = 0; i < length; i++) {
-				var spawn = SavedSpawns[i];
-				Spawner.SpawnItem(spawn.ItemSpawnPoint, spawn.ItemType);
-			}
-		}
+		public void SpawnSavedItems() => Spawner.SpawnItems(SavedSpawns);
 
 		public static readonly List<SavedItemRoom> SavedRooms = new List<SavedItemRoom>();
 
@@ -25,17 +19,6 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 
 			for (int i = 0; i < roomCount; i++) {
 				SavedRooms.Add(new SavedItemRoom());
-			}
-		}
-
-		public readonly struct SavedSpawnInfo {
-
-			public readonly ItemSpawnPoint ItemSpawnPoint;
-			public readonly ItemType ItemType;
-
-			public SavedSpawnInfo(ItemSpawnPoint point, ItemType itemType) {
-				ItemSpawnPoint = point;
-				ItemType = itemType;
 			}
 		}
 	}

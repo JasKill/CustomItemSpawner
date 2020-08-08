@@ -8,13 +8,16 @@ using Version = System.Version;
 
 namespace ArithFeather.CustomItemSpawner {
 	public class CustomItemSpawner : Plugin<Config> {
+		public static Config Configs { get; private set; }
 
 		public CustomItemSpawner() {
+			DoorOpenEventPatch.OnDoorOpened += CheckDoorItemSpawn;
 			SpawnPointCreator.Reload();
+			Configs = Config;
 		}
 
 		public override string Author => "Arith";
-		public override Version Version => new Version("2.00");
+		public override Version Version => new Version("2.01");
 
 		public override void OnEnabled() {
 			base.OnEnabled();
@@ -23,20 +26,12 @@ namespace ArithFeather.CustomItemSpawner {
 			DestroyedDoorPatch.OnDoorDestroyed += CheckDoorItemSpawn;
 			DestroyedDoorPatch.Enable();
 			StopDoorTriggerPatch.Enable();
-
-			//Exiled.Events.Handlers.Player.PickingUpItem += EndlessSpawning.Instance.Player_PickingUpItem;
+			DoorOpenEventPatch.Enable();
 
 			Exiled.Events.Handlers.Server.WaitingForPlayers += Spawner.Instance.Reset;
 
-			Exiled.Events.Handlers.Player.InteractingDoor += Player_InteractingDoor;
-			Exiled.Events.Handlers.Scp079.InteractingDoor += Scp079_InteractingDoor;
-		}
-
-		private void Scp079_InteractingDoor(Exiled.Events.EventArgs.InteractingDoorEventArgs ev) {
-			var door = ev.Door;
-			if (ev.IsAllowed && !door.isOpen) {
-				CheckDoorItemSpawn(door);
-			}
+			if (Config.EnableItemTracking)
+				Exiled.Events.Handlers.Player.PickingUpItem += Spawner.Instance.Player_PickingUpItem;
 		}
 
 		public override void OnDisabled() {
@@ -45,10 +40,12 @@ namespace ArithFeather.CustomItemSpawner {
 			DestroyedDoorPatch.OnDoorDestroyed -= CheckDoorItemSpawn;
 			DestroyedDoorPatch.Disable();
 			StopDoorTriggerPatch.Disable();
+			DoorOpenEventPatch.Disable();
 
-			//Exiled.Events.Handlers.Player.PickingUpItem -= EndlessSpawning.Instance.Player_PickingUpItem;
 			Exiled.Events.Handlers.Server.WaitingForPlayers -= Spawner.Instance.Reset;
-			Exiled.Events.Handlers.Player.InteractingDoor -= Player_InteractingDoor;
+
+			if (Config.EnableItemTracking)
+				Exiled.Events.Handlers.Player.PickingUpItem -= Spawner.Instance.Player_PickingUpItem;
 
 			base.OnDisabled();
 		}
@@ -58,14 +55,7 @@ namespace ArithFeather.CustomItemSpawner {
 			SpawnPointCreator.Reload();
 		}
 
-		private void Player_InteractingDoor(Exiled.Events.EventArgs.InteractingDoorEventArgs ev) {
-			var door = ev.Door;
-			if (door.isOpen || door.destroyed || (!door.isOpen && !ev.IsAllowed)) return;
-
-			CheckDoorItemSpawn(door);
-		}
-
-		private void CheckDoorItemSpawn(Door door) {
+		public static void CheckDoorItemSpawn(Door door) {
 			var customDoor = door.GetCustomDoor();
 
 			CheckRoomItemsSpawned(customDoor.Room1.Id);
@@ -76,7 +66,7 @@ namespace ArithFeather.CustomItemSpawner {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void CheckRoomItemsSpawned(int id) {
+		private static void CheckRoomItemsSpawned(int id) {
 			var room = SavedItemRoom.SavedRooms[id];
 
 			if (room != null && !room.HasBeenEntered) {
