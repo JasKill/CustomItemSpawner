@@ -298,7 +298,8 @@ namespace ArithFeather.CustomItemSpawner {
 		private static readonly List<string> LoadedItemData = new List<string>();
 		private static Section _lastFoundSection;
 
-		private static readonly Regex SectionHeader = new Regex(@"\[(?<Name>[a-zA-Z\s]*)\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+		private static readonly Regex SectionHeaderRegex = new Regex(@"\[(?<Name>[a-zA-Z\s]*)\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+		private static readonly Regex KeyChanceRegex = new Regex(@"([0-9a-zA-Z\s]*)(?:\(([0-9]*)\))?", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
 		private static void LoadItemData() {
 			if (!FileManager.FileExists(ItemDataFilePath)) return;
@@ -351,9 +352,22 @@ namespace ArithFeather.CustomItemSpawner {
 			SecondPass();
 		}
 
+		private static bool TryParseKey(string key, out GroupCollection matchedGroups) {
+			var match = KeyChanceRegex.Match(key);
+
+			if (match.Success) {
+				matchedGroups = match.Groups;
+				return true;
+			}
+
+			matchedGroups = null;
+			SectionKeyError(key, $"Could not parse key, probably something wrong with spawn chance.");
+			return false;
+		}
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static bool CheckForSection(string line) {
-			var match = SectionHeader.Match(line);
+			var match = SectionHeaderRegex.Match(line);
 			if (match.Success && Sections.TryGetValue(match.Groups["Name"].Value, out var section)) {
 				_lastFoundSection = section;
 				return true;
@@ -400,10 +414,14 @@ namespace ArithFeather.CustomItemSpawner {
 
 						if (ItemListDictionary.TryGetValue(key, out var itemList)) {
 
-							var theList = new List<SavedItemType>(dataLength);
+							var theList = new List<IItemObtainable>(dataLength);
 
 							for (int k = 0; k < dataLength; k++) {
-								var item = data[k].Trim();
+								var rawItem = data[k].Trim();
+
+								if (!TryParseKey(rawItem, out var matchedGroups)) continue;
+
+								var item = matchedGroups[0].Value.Trim();
 
 								var instance = GetInstance(item);
 
@@ -413,7 +431,16 @@ namespace ArithFeather.CustomItemSpawner {
 									SectionKeyError(key,
 										$"Failed to add {item}. You can only add Items to Item Lists");
 								} else {
-									theList.Add((SavedItemType)instance);
+									int chance = 100;
+
+									if (matchedGroups.Count == 2) {
+										var chanceString = matchedGroups[1].Value.Trim();
+										if (!int.TryParse(chanceString, out chance)) {
+											SectionKeyError(item, $"Could not parse chance value.");
+										} else chance = 100;
+									}
+
+									theList.Add(new SpawnChanceWrapper(chance, (SavedItemType)instance));
 								}
 							}
 
@@ -435,13 +462,27 @@ namespace ArithFeather.CustomItemSpawner {
 							var theList = new List<IItemObtainable>(dataLength);
 
 							for (int k = 0; k < dataLength; k++) {
-								var item = data[k].Trim();
+								var rawItem = data[k].Trim();
+
+
+								if (!TryParseKey(rawItem, out var matchedGroups)) continue;
+
+								var item = matchedGroups[0].Value.Trim();
 
 								var instance = GetInstance(item);
 
 								if (instance == null) continue;
 
-								theList.Add(instance);
+								int chance = 100;
+
+								if (matchedGroups.Count == 2) {
+									var chanceString = matchedGroups[1].Value.Trim();
+									if (!int.TryParse(chanceString, out chance)) {
+										SectionKeyError(item, $"Could not parse chance value.");
+									} else chance = 100;
+								}
+
+								theList.Add(new SpawnChanceWrapper(chance, instance));
 							}
 
 							if (theList.Count != 0) {
@@ -465,7 +506,11 @@ namespace ArithFeather.CustomItemSpawner {
 						bool dataAttached = false;
 
 						for (int j = 0; j < dataLength; j++) {
-							var item = data[j].Trim();
+							var rawItem = data[j].Trim();
+
+							if (!TryParseKey(rawItem, out var matchedGroups)) continue;
+
+							var item = matchedGroups[0].Value.Trim();
 
 							var instance = GetInstance(item);
 
@@ -473,11 +518,22 @@ namespace ArithFeather.CustomItemSpawner {
 
 							dataAttached = true;
 
+							int chance = 100;
+
+							if (matchedGroups.Count == 2) {
+								var chanceString = matchedGroups[1].Value.Trim();
+								if (!int.TryParse(chanceString, out chance)) {
+									SectionKeyError(item, $"Could not parse chance value.");
+								} else chance = 100;
+							}
+
+							var wrappedList = new SpawnChanceWrapper(chance, instance);
+
 							if (instance.GetType() == typeof(ItemList)) {
-								spawnGroup.ItemLists.Add(instance);
+								spawnGroup.ItemLists.Add(wrappedList);
 							} else if (instance.GetType() == typeof(QueuedList)) {
-								spawnGroup.QueuedLists.Add(instance);
-							} else spawnGroup.Items.Add(instance);
+								spawnGroup.QueuedLists.Add(wrappedList);
+							} else spawnGroup.Items.Add(wrappedList);
 						}
 
 						if (!groupExists && dataAttached)

@@ -2,6 +2,7 @@
 using ArithFeather.AriToolKit;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
 using ArithFeather.CustomItemSpawner.Spawning;
+using Exiled.API.Features;
 
 namespace ArithFeather.CustomItemSpawner {
 	public class SpawnGroup {
@@ -48,6 +49,8 @@ namespace ArithFeather.CustomItemSpawner {
 		}
 
 		public void SpawnItem(bool savedSpawn, ItemSpawnPoint point, ItemType itemType) {
+
+			if (itemType == ItemType.MicroHID) {Log.Error("spawning");}
 			_currentItemsSpawned++;
 			point.IsFree = false;
 			if (savedSpawn) SavedItemRoom.SavedRooms[point.CustomRoom.Id].SavedSpawns.Add(new SpawnInfo(point, itemType));

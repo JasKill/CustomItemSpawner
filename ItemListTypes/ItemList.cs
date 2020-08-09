@@ -4,10 +4,10 @@ using Random = UnityEngine.Random;
 namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 
 	public class ItemList : IItemObtainable {
-		private List<SavedItemType> _items;
+		private List<IItemObtainable> _items;
 		private int _itemSize;
 
-		public List<SavedItemType> Items {
+		public List<IItemObtainable> Items {
 			set {
 				_items = value;
 				_itemSize = value.Count;
