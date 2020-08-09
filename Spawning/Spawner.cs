@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ArithFeather.CustomItemSpawner.EndlessSpawning;
 using MEC;
 using Random = UnityEngine.Random;
 
@@ -12,19 +11,19 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 		private static List<SpawnGroup> Rooms => SpawnPointCreator.SpawnGroups;
 		public readonly List<SpawnGroup> FreeRooms = new List<SpawnGroup>();
 
-		bool ContainItem(List<SpawnableItem> list, SpawnableItem item) {
+		//bool ContainItem(List<SpawnableItem> list, SpawnableItem item) {
 
-			foreach (var lockerItem in list) {
+		//	foreach (var lockerItem in list) {
 
-				if (lockerItem != item &&
-					lockerItem.chanceOfSpawn == item.chanceOfSpawn &&
-					lockerItem.inventoryId == item.inventoryId) {
-					return true;
-				}
-			}
+		//		if (lockerItem != item &&
+		//			lockerItem.chanceOfSpawn == item.chanceOfSpawn &&
+		//			lockerItem.inventoryId == item.inventoryId) {
+		//			return true;
+		//		}
+		//	}
 
-			return false;
-		}
+		//	return false;
+		//}
 
 		public void Reset() {
 

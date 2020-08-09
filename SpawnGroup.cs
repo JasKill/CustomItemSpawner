@@ -2,7 +2,6 @@
 using ArithFeather.AriToolKit;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
 using ArithFeather.CustomItemSpawner.Spawning;
-using Exiled.API.Features;
 
 namespace ArithFeather.CustomItemSpawner {
 	public class SpawnGroup {

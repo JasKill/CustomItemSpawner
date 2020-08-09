@@ -26,7 +26,7 @@ namespace ArithFeather.CustomItemSpawner {
 		private static readonly List<SavedItemType> ItemTypeList = new List<SavedItemType>();
 		private static readonly Dictionary<string, QueuedList> QueuedListDictionary = new Dictionary<string, QueuedList>();
 		private static readonly Dictionary<string, ItemList> ItemListDictionary = new Dictionary<string, ItemList>();
-		private static readonly Dictionary<string, SpawnGroupData> spawnGroupItemDictionary = new Dictionary<string, SpawnGroupData>();
+		private static readonly Dictionary<string, SpawnGroupData> SpawnGroupItemDictionary = new Dictionary<string, SpawnGroupData>();
 
 		// Used for randomizing queue lists
 		public static readonly List<QueuedList> QueuedListList = new List<QueuedList>();
@@ -52,7 +52,7 @@ namespace ArithFeather.CustomItemSpawner {
 			var spawnPointDictionary = _pointList.IdGroupedFixedPoints;
 			var spawnPointDictionaryCount = spawnPointDictionary.Count;
 
-			var itemGroupCount = spawnGroupItemDictionary.Count;
+			var itemGroupCount = SpawnGroupItemDictionary.Count;
 			if (spawnPointDictionaryCount == 0 || itemGroupCount == 0) {
 				Log.Error($"Could not make Spawn Groups. (Spawn Point Groups: {spawnPointDictionaryCount} | Item Groups: {itemGroupCount})");
 				return;
@@ -68,7 +68,7 @@ namespace ArithFeather.CustomItemSpawner {
 				var key = pair.Key;
 				var spawnPoints = pair.Value;
 
-				if (spawnGroupItemDictionary.TryGetValue(key, out var groupData)) {
+				if (SpawnGroupItemDictionary.TryGetValue(key, out var groupData)) {
 
 					var itemList = new List<IItemObtainable>(groupData.Items.Count + groupData.QueuedLists.Count +
 														 groupData.ItemLists.Count);
@@ -111,21 +111,11 @@ namespace ArithFeather.CustomItemSpawner {
 			SavedItemRoom.CreateGlobalRooms();
 		}
 
-		private static List<ItemSpawnPoint> ConvertFixedPointToItemPoint(SpawnGroup spawnGroup, List<FixedPoint> pointList) {
-			var newList = new List<ItemSpawnPoint>();
-
-			var pointCount = pointList.Count;
-			for (int i = 0; i < pointCount; i++) {
-				newList.Add(new ItemSpawnPoint(spawnGroup, pointList[i]));
-			}
-
-			return newList;
-		}
-
 		#region Creating default text files
 
 		private static void CreateDefaultSpawnPointsFile() {
 			Log.Warn("Creating new Spawn Point file using default spawn points.");
+
 			var ris = RandomItemSpawner.singleton;
 
 			// Save Position data
@@ -258,18 +248,18 @@ namespace ArithFeather.CustomItemSpawner {
 
 					var key = item.posID;
 
-					string itemID = string.Empty;
+					string itemId = string.Empty;
 
 					// Find item ID
 					for (int j = 0; j < SavedItemType.ItemTypeLength; j++) {
 						if (itemTypes[j].Equals(item.itemID.ToString(), StringComparison.InvariantCultureIgnoreCase))
-							itemID = j.ToString();
+							itemId = j.ToString();
 					}
 
-					if (!string.IsNullOrWhiteSpace(itemID) && keyCounter.TryGetValue(key, out var value)) {
-						value.Append($",{itemID}");
+					if (!string.IsNullOrWhiteSpace(itemId) && keyCounter.TryGetValue(key, out var value)) {
+						value.Append($",{itemId}");
 					} else {
-						keyCounter.Add(key, new StringBuilder($"{key}:{itemID}"));
+						keyCounter.Add(key, new StringBuilder($"{key}:{itemId}"));
 					}
 				}
 
@@ -312,7 +302,7 @@ namespace ArithFeather.CustomItemSpawner {
 			ItemTypeList.Clear();
 			QueuedListDictionary.Clear();
 			ItemListDictionary.Clear();
-			spawnGroupItemDictionary.Clear();
+			SpawnGroupItemDictionary.Clear();
 			QueuedListList.Clear();
 
 			using (var reader = File.OpenText(ItemDataFilePath)) {
@@ -385,6 +375,7 @@ namespace ArithFeather.CustomItemSpawner {
 		private static void SectionKeyError(string key, string error) => Log.Error($"Section [{_lastFoundSection}] Key [{key}] -- {error}");
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void ListNotExistError(string key) => SectionKeyError(key, "List does not exist!");
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void TooManySplitters(string key) => SectionKeyError(key, "Too many ':' splitters.");
 
 		private static void SecondPass() {
@@ -497,7 +488,7 @@ namespace ArithFeather.CustomItemSpawner {
 
 					case Section.SpawnGroups:
 
-						var groupExists = spawnGroupItemDictionary.TryGetValue(key, out var spawnGroup);
+						var groupExists = SpawnGroupItemDictionary.TryGetValue(key, out var spawnGroup);
 
 						if (!groupExists) spawnGroup = new SpawnGroupData();
 
@@ -531,7 +522,7 @@ namespace ArithFeather.CustomItemSpawner {
 						}
 
 						if (!groupExists && dataAttached)
-							spawnGroupItemDictionary.Add(key, spawnGroup);
+							SpawnGroupItemDictionary.Add(key, spawnGroup);
 						else if (groupExists)
 							SectionKeyError(key, $"Key already exists, merging items...");
 						else ListNotExistError(key);

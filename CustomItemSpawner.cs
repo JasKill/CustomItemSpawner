@@ -1,9 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using ArithFeather.AriToolKit;
+﻿using ArithFeather.AriToolKit;
 using ArithFeather.AriToolKit.PointEditor;
 using ArithFeather.CustomItemSpawner.Patches;
 using ArithFeather.CustomItemSpawner.Spawning;
 using Exiled.API.Features;
+using HarmonyLib;
 using Version = System.Version;
 
 namespace ArithFeather.CustomItemSpawner {
@@ -11,7 +11,6 @@ namespace ArithFeather.CustomItemSpawner {
 		public static Config Configs { get; private set; }
 
 		public CustomItemSpawner() {
-			DoorOpenEventPatch.OnDoorOpened += CheckDoorItemSpawn;
 			SpawnPointCreator.Reload();
 			Configs = Config;
 		}
@@ -19,14 +18,16 @@ namespace ArithFeather.CustomItemSpawner {
 		public override string Author => "Arith";
 		public override Version Version => new Version("2.02");
 
+		private static readonly Harmony Harmony = new Harmony("customItemSpawner");
+
 		public override void OnEnabled() {
 			base.OnEnabled();
+			Harmony.PatchAll();
+
 			PointAPI.OnLoadSpawnPoints += SpawnPointCreator.OnLoadSpawnPoints;
 
 			DestroyedDoorPatch.OnDoorDestroyed += CheckDoorItemSpawn;
-			DestroyedDoorPatch.Enable();
-			StopDoorTriggerPatch.Enable();
-			DoorOpenEventPatch.Enable();
+			DoorOpenEventPatch.OnDoorOpened += CheckDoorItemSpawn;
 
 			Exiled.Events.Handlers.Server.WaitingForPlayers += Spawner.Instance.Reset;
 
@@ -37,14 +38,13 @@ namespace ArithFeather.CustomItemSpawner {
 			PointAPI.OnLoadSpawnPoints -= SpawnPointCreator.OnLoadSpawnPoints;
 
 			DestroyedDoorPatch.OnDoorDestroyed -= CheckDoorItemSpawn;
-			DestroyedDoorPatch.Disable();
-			StopDoorTriggerPatch.Disable();
-			DoorOpenEventPatch.Disable();
+			DoorOpenEventPatch.OnDoorOpened -= CheckDoorItemSpawn;
 
 			Exiled.Events.Handlers.Server.WaitingForPlayers -= Spawner.Instance.Reset;
 
 			Exiled.Events.Handlers.Player.PickingUpItem -= Spawner.Instance.Player_PickingUpItem;
 
+			Harmony.UnpatchAll();
 			base.OnDisabled();
 		}
 
@@ -63,7 +63,6 @@ namespace ArithFeather.CustomItemSpawner {
 			}
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void CheckRoomItemsSpawned(int id) {
 			var room = SavedItemRoom.SavedRooms[id];
 
