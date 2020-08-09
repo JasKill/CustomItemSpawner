@@ -160,41 +160,45 @@ namespace ArithFeather.CustomItemSpawner {
 
 
 		private const string ItemSpawnTypesDescription =
-		"# How to use this.\n" +
-		"\n" +
-		"# Note: A 'Spawn Group' is a group of Spawn Points." +
-		"# When the server spawns items, it will...\n" +
-		"# Go through all the 'Spawn Groups' and tell each group to spawn an item until ALL groups have spawned their items OR they are at Max Items Allowed" +
-		"\n" +
-		"# Each 'Spawn group' will spawn its items in order:" +
-		"\n" +
-		"# First: Spawn all items assigned to spawn. (* and 0 to 36)\n" +
-		"# Example: This will force the HID room to spawn the MicroHID.\n" +
-		"# [Spawn Groups]" +
-		"# Hid:16\n" +
-		"\n" +
-		"# Second: Spawn an item from a 'Queued List' (Until the Queued list is empty).\n" +
-		"# Example, this will make sure at least 2 checkpoint key cards will spawn somewhere in LCZ.\n" +
-		"# [Queued Lists]\n" +
-		"# SpawnLCZ:3,3\n" +
-		"# [Spawn Groups]\n" +
-		"# LCZ_Toilets:SpawnLCZ\n" +
-		"# LCZ_372:SpawnLCZ\n" +
-		"# LCZ_Cafe:SpawnLCZ\n" +
-		"# LCZ_173:SpawnLCZ\n" +
-		"\n" +
-		"# Third: Any 'Item Lists' you attached to the 'Spawn Group' will spawn a random item from that list.\n" +
-		"# Example: You can use this for rarities.\n" +
-		"# [Item Lists]\n" +
-		"# HighRarity:21,25\n" +
-		"# LowRarity:12,14,15\n" +
-		"# [Spawn Groups]\n" +
-		"# LCZ_Armory:LowRarity,LowRarity,LowRarity,HighRarity,HighRarity\n" +
-		"# (This will spawn 3 random items from the LowRarity list and 2 items from the HighRarity list in Light Containment Armory.\n" +
-		"\n" +
-		"# -Again, the difference between a Queued List and Item List is: A Queued list will spawn all the items inside it, across all the groups it is attached to. Where an Item List will only spawn 1 random item inside the list.\n" +
-		"# -You can add an Item List to a Queued List, but you can't add a Queued List to an Item List, or an Item List to an Item List.\n" +
-		"# -For spawn points inside duplicate rooms (like Plant Room), the items will be split across those rooms.\n\n";
+			"# How to use this.\n" +
+			"\n" +
+			"# Note: A 'Spawn Group' is a group of Spawn Points." +
+			"# When the server spawns items, it will...\n" +
+			"# Go through all the 'Spawn Groups' and tell each group to spawn an item until ALL groups have spawned their items OR they are at Max Items Allowed" +
+			"\n" +
+			"# Each 'Spawn group' will spawn its items in order:" +
+			"\n" +
+			"# First: Spawn all items assigned to spawn. (* and 0 to 36)\n" +
+			"# Example: This will force the HID room to spawn the MicroHID.\n" +
+			"# [Spawn Groups]" +
+			"# Hid:16\n" +
+			"\n" +
+			"# Second: Spawn an item from a 'Queued List' (Until the Queued list is empty).\n" +
+			"# Example, this will make sure at least 2 checkpoint key cards will spawn somewhere in LCZ.\n" +
+			"# [Queued Lists]\n" +
+			"# SpawnLCZ:3,3\n" +
+			"# [Spawn Groups]\n" +
+			"# LCZ_Toilets:SpawnLCZ\n" +
+			"# LCZ_372:SpawnLCZ\n" +
+			"# LCZ_Cafe:SpawnLCZ\n" +
+			"# LCZ_173:SpawnLCZ\n" +
+			"\n" +
+			"# Third: Any 'Item Lists' you attached to the 'Spawn Group' will spawn a random item from that list.\n" +
+			"# Example: You can use this for rarities.\n" +
+			"# [Item Lists]\n" +
+			"# HighRarity:21,25\n" +
+			"# LowRarity:12,14,15\n" +
+			"# [Spawn Groups]\n" +
+			"# LCZ_Armory:LowRarity,LowRarity,LowRarity,HighRarity,HighRarity\n" +
+			"# (This will spawn 3 random items from the LowRarity list and 2 items from the HighRarity list in Light Containment Armory.\n" +
+			"\n" +
+			"# -Again, the difference between a Queued List and Item List is: A Queued list will spawn all the items inside it, across all the groups it is attached to. Where an Item List will only spawn 1 random item inside the list.\n" +
+			"# -You can add an Item List to a Queued List, but you can't add a Queued List to an Item List, or an Item List to an Item List.\n" +
+			"# -For spawn points inside duplicate rooms (like Plant Room), the items will be split across those rooms.\n" +
+			"\n" +
+			"# *NEW* You can gives your Lists a chance to spawn (Chance/100). Just use brackets beside the name.\n" +
+			"# Example: When the game tells this group to spawn a pistol, there's a 50% chance it will not spawn.\n" +
+			"# RandomPistol:13(50)\n\n";
 
 		private static void CreateItemDataFile() {
 			Log.Warn("Creating new ItemSpawnInfo file using default items.");
@@ -472,8 +476,7 @@ namespace ArithFeather.CustomItemSpawner {
 								if (instance == null) continue;
 
 								var secondGroup = matchedGroups[2];
-								if (!secondGroup.Success || !int.TryParse(secondGroup.Value, out var chance))
-								{
+								if (!secondGroup.Success || !int.TryParse(secondGroup.Value, out var chance)) {
 									chance = 100;
 								}
 
