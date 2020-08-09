@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using ArithFeather.CustomItemSpawner.EndlessSpawning;
-using ArithFeather.CustomItemSpawner.ItemListTypes;
-using Exiled.API.Features;
 using MEC;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace ArithFeather.CustomItemSpawner.Spawning {
@@ -37,46 +30,46 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 
 			// Testing Lockers
 
-			using (var writer = new StreamWriter(File.Create(Path.Combine(Paths.Configs, "SpawnableItemsRaw") + ".txt"))) {
-				var itemList = new List<SpawnableItem>();
+			//using (var writer = new StreamWriter(File.Create(Path.Combine(Paths.Configs, "SpawnableItemsRaw") + ".txt"))) {
+			//	var itemList = new List<SpawnableItem>();
 
-				var lockerItems = LockerManager.singleton.items;
-				var lockerItemCount = lockerItems.Length;
+			//	var lockerItems = LockerManager.singleton.items;
+			//	var lockerItemCount = lockerItems.Length;
 
-				// Group via same ID and CHANCE
-				for (int i = 0; i < lockerItemCount; i++) {
-					var item = lockerItems[i];
+			//	// Group via same ID and CHANCE
+			//	for (int i = 0; i < lockerItemCount; i++) {
+			//		var item = lockerItems[i];
 
-					//var item = new SpawnableItem {
-					//	chanceOfSpawn = oldItem.chanceOfSpawn,
-					//	copies = oldItem.copies, // so we can add them together.
-					//	inventoryId = oldItem.inventoryId,
-					//	itemTag = oldItem.itemTag,
-					//	name = oldItem.name
-					//};
+			//		//var item = new SpawnableItem {
+			//		//	chanceOfSpawn = oldItem.chanceOfSpawn,
+			//		//	copies = oldItem.copies, // so we can add them together.
+			//		//	inventoryId = oldItem.inventoryId,
+			//		//	itemTag = oldItem.itemTag,
+			//		//	name = oldItem.name
+			//		//};
 
-					var index = itemList.FindIndex((spawnableItem) =>
-						item.chanceOfSpawn == spawnableItem.chanceOfSpawn &&
-						item.inventoryId == spawnableItem.inventoryId);
+			//		var index = itemList.FindIndex((spawnableItem) =>
+			//			item.chanceOfSpawn == spawnableItem.chanceOfSpawn &&
+			//			item.inventoryId == spawnableItem.inventoryId);
 
-					if (index == -1) // Not Found
-					{
-						itemList.Add(item);
-					} else {
-						//itemList[index].copies += item.copies;
-					}
-				}
+			//		if (index == -1) // Not Found
+			//		{
+			//			itemList.Add(item);
+			//		} else {
+			//			//itemList[index].copies += item.copies;
+			//		}
+			//	}
 
-				var spawnCount = itemList.Count;
-				for (int i = 0; i < spawnCount; i++) {
-					var item = itemList[i];
-					var numItems = Mathf.RoundToInt(100 / item.chanceOfSpawn) - 1;
+			//	var spawnCount = itemList.Count;
+			//	for (int i = 0; i < spawnCount; i++) {
+			//		var item = itemList[i];
+			//		var numItems = Mathf.RoundToInt(100 / item.chanceOfSpawn) - 1;
 
 
 
-					writer.WriteLine($"CONTAINER: [{item.itemTag}] -- ITEM ID: [{(int)item.inventoryId}]  -- COPIES: [{item.copies + 1}] -- CHANCE TO SPAWN: [{item.chanceOfSpawn}]");
+			//		writer.WriteLine($"CONTAINER: [{item.itemTag}] -- ITEM ID: [{(int)item.inventoryId}]  -- COPIES: [{item.copies + 1}] -- CHANCE TO SPAWN: [{item.chanceOfSpawn}]");
 
-				}
+			//	}
 
 				//for (int i = 0; i < lockerItemCount; i++) {
 				//	var lockerItem = lockerItems[i];
@@ -123,7 +116,7 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 
 				////	writer.WriteLine($"name: {item.name} | tag: {item.itemTag} | Inventory ID: {item.inventoryId} | copies: {item.copies} | Spawn Chance: {item.chanceOfSpawn}");
 				////}
-			}
+			//}
 
 			// Testing Lockers
 
@@ -191,7 +184,11 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 		#region Endless Spawning
 
 		private void SpawnGroup_OnRoomIsFree(SpawnGroup spawnGroup) => FreeRooms.Insert(Random.Range(0, FreeRooms.Count), spawnGroup);
-		public void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev) => ev.Pickup.GetComponent<PickupDisableTrigger>()?.PickedUp();
+
+		public void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev)
+		{
+			if (CustomItemSpawner.Configs.EnableItemTracking) ev.Pickup.GetComponent<PickupDisableTrigger>()?.PickedUp();
+		}
 
 		#endregion
 	}

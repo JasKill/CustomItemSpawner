@@ -14,8 +14,13 @@ namespace ArithFeather.CustomItemSpawner {
 		public List<ItemSpawnPoint> Points { get; private set; }
 		public int MaxItemsAllowed { get; private set; }
 
-		public void Initialize(string id, List<IItemObtainable> items, List<ItemSpawnPoint> points)
-		{
+		public bool AtMaxItemSpawns => _currentItemsSpawned >= MaxItemsAllowed;
+		public bool SpawnedAllItems => _indexer >= Items.Count;
+
+		private int _currentItemsSpawned;
+		private int _indexer;
+
+		public void Initialize(string id, List<IItemObtainable> items, List<ItemSpawnPoint> points) {
 			Id = id;
 			Items = items;
 			Points = points;
@@ -30,27 +35,23 @@ namespace ArithFeather.CustomItemSpawner {
 			_currentItemsSpawned--;
 		}
 
-		private int _indexer;
 		/// <returns>Were we able to spawn a start item?</returns>
 		public bool TrySpawnStartItem() {
-
-			if (AtMaxItemSpawns) return false;
-
-			while (_indexer < Items.Count && !Items[_indexer].HasItems) {
+			while (!AtMaxItemSpawns && !SpawnedAllItems)
+			{
+				var nextItem = Items[_indexer];
 				_indexer++;
+
+				if (nextItem.HasItems) {
+					SpawnItem(true, GetRandomFreePoint(), nextItem.GetItem());
+					return true;
+				}
 			}
 
-			if (_indexer >= Items.Count) return false;
-
-			SpawnItem(true, GetRandomFreePoint(), Items[_indexer].GetItem());
-
-			_indexer++;
-			return true;
+			return false;
 		}
 
 		public void SpawnItem(bool savedSpawn, ItemSpawnPoint point, ItemType itemType) {
-
-			if (itemType == ItemType.MicroHID) {Log.Error("spawning");}
 			_currentItemsSpawned++;
 			point.IsFree = false;
 			if (savedSpawn) SavedItemRoom.SavedRooms[point.CustomRoom.Id].SavedSpawns.Add(new SpawnInfo(point, itemType));
@@ -58,9 +59,8 @@ namespace ArithFeather.CustomItemSpawner {
 		}
 
 		private ItemSpawnPoint GetRandomFreePoint() {
-
-			var pointsLength = Points.Count;
 			Points.UnityShuffle();
+			var pointsLength = Points.Count;
 
 			for (int n = 0; n < pointsLength; n++) {
 				var spawnPoint = Points[n];
@@ -72,8 +72,5 @@ namespace ArithFeather.CustomItemSpawner {
 
 			return null;
 		}
-
-		private int _currentItemsSpawned;
-		public bool AtMaxItemSpawns => _currentItemsSpawned >= MaxItemsAllowed;
 	}
 }

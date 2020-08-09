@@ -17,7 +17,7 @@ namespace ArithFeather.CustomItemSpawner {
 		}
 
 		public override string Author => "Arith";
-		public override Version Version => new Version("2.01");
+		public override Version Version => new Version("2.02");
 
 		public override void OnEnabled() {
 			base.OnEnabled();
@@ -30,8 +30,7 @@ namespace ArithFeather.CustomItemSpawner {
 
 			Exiled.Events.Handlers.Server.WaitingForPlayers += Spawner.Instance.Reset;
 
-			if (Config.EnableItemTracking)
-				Exiled.Events.Handlers.Player.PickingUpItem += Spawner.Instance.Player_PickingUpItem;
+			Exiled.Events.Handlers.Player.PickingUpItem += Spawner.Instance.Player_PickingUpItem;
 		}
 
 		public override void OnDisabled() {
@@ -44,8 +43,7 @@ namespace ArithFeather.CustomItemSpawner {
 
 			Exiled.Events.Handlers.Server.WaitingForPlayers -= Spawner.Instance.Reset;
 
-			if (Config.EnableItemTracking)
-				Exiled.Events.Handlers.Player.PickingUpItem -= Spawner.Instance.Player_PickingUpItem;
+			Exiled.Events.Handlers.Player.PickingUpItem -= Spawner.Instance.Player_PickingUpItem;
 
 			base.OnDisabled();
 		}

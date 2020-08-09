@@ -10,7 +10,7 @@ namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 			Items = items;
 		}
 
-		public ItemType GetItem() => Random.Range(0, 100) >= ChanceToSpawn ? Items.GetItem() : ItemType.None;
+		public ItemType GetItem() => Random.Range(0, 100) <= ChanceToSpawn ? Items.GetItem() : ItemType.None;
 
 		public bool HasItems => Items.HasItems;
 	}
