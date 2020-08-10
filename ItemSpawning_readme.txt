@@ -1,7 +1,13 @@
 # How to use the ItemSpawnInfo.txt file.
 
-# Note: A 'Spawn Group' is a group of Spawn Points.# When the server spawns items, it will...
-# Go through all the 'Spawn Groups' and tell each group to spawn an item until ALL groups have spawned their items OR they are at Max Items Allowed
+# Spawn Groups
+# Spawn Groups are IDs used to link your "Spawn Points" to the "Items lists".
+# Example: This will tell the key: "lcz_armory_frags" to spawn 3 Frag grenades. 
+# lcz_armory_frags:25,25,25
+# Note: The spawn points you make must use the same key "lcz_armory_frags".
+
+# When the server spawns items, it will...
+# Go through all the 'Spawn Groups' and tell each group to spawn an item until ALL groups have spawned their items (Or no more spawn points).
 # Each 'Spawn group' will spawn its items in order:
 # First: Spawn all items assigned to spawn. (* and 0 to 36)
 # Example: This will force the HID room to spawn the MicroHID.

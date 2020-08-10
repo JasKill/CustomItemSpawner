@@ -151,13 +151,18 @@ namespace ArithFeather.CustomItemSpawner {
 
 
 		private const string ItemSpawnTypesDescription =
-			"# How to use this.\n" +
+			"# How to use ItemSpawnInfo.txt\n" +
 			"\n" +
-			"# Note: A 'Spawn Group' is a group of Spawn Points." +
-			"# When the server spawns items, it will...\n" +
-			"# Go through all the 'Spawn Groups' and tell each group to spawn an item until ALL groups have spawned their items OR they are at Max Items Allowed" +
+			"# Spawn Groups\n" +
+			"# Spawn Groups are IDs used to link your 'Spawn Points' to the 'Items lists'.\n" +
+			"# Example: This will tell the key: 'lcz_armory_frags' to spawn 3 Frag grenades. \n" +
+			"# lcz_armory_frags:25,25,25\n" +
+			"# Note: The spawn points you make must use the same key 'lcz_armory_frags'.\n" +
 			"\n" +
-			"# Each 'Spawn group' will spawn its items in order:" +
+			"# When the server spawns items, it will:\n" +
+			"# Go through all the 'Spawn Groups' and tell each group to spawn an item until ALL groups have spawned their items (Or no more spawn points).\n" +
+			"\n" +
+			"# Each 'Spawn group' will spawn its items in order:\n" +
 			"\n" +
 			"# First: Spawn all items assigned to spawn. (* and 0 to 36)\n" +
 			"# Example: This will force the HID room to spawn the MicroHID.\n" +
@@ -527,10 +532,8 @@ namespace ArithFeather.CustomItemSpawner {
 			LoadedItemData.Clear();
 		}
 
-		private static bool ParseKeyGetInstance(string rawItem, out KeyData keyData, out IItemObtainable instance)
-		{
-			if (!TryParseKey(rawItem, out keyData))
-			{
+		private static bool ParseKeyGetInstance(string rawItem, out KeyData keyData, out IItemObtainable instance) {
+			if (!TryParseKey(rawItem, out keyData)) {
 				SectionKeyError($"Regex could not parse [{rawItem}]", string.Empty);
 				instance = null;
 				return false;
@@ -543,7 +546,7 @@ namespace ArithFeather.CustomItemSpawner {
 			return instance != null;
 		}
 
-		
+
 		private static IItemObtainable GetInstance(string key) {
 			if (key.Equals("*")) return ItemTypeList[ItemTypeList.Count - 1];
 
