@@ -193,7 +193,7 @@ namespace ArithFeather.CustomItemSpawner {
 			"# -For spawn points inside duplicate rooms (like Plant Room), the items will be split across those rooms.\n" +
 			"\n" +
 			"# *NEW* Modifiers\n" +
-			"# % Chance To Spawn -You can gives your Lists and Items a chance to spawn (1-100%).\n" +
+			"# % Chance To Spawn -You can give your Lists and Items a chance to spawn (1-100%).\n" +
 			"# # Copies          -You can create more than one item per spawn point (1-20).\n" +
 			"\n" +
 			"# Example: When the game tells this group to spawn a pistol, there's a 50% chance it will spawn two pistols!\n" +
@@ -274,6 +274,15 @@ namespace ArithFeather.CustomItemSpawner {
 				foreach (var stringPair in keyCounter) {
 					writer.WriteLine(stringPair.Value.ToString());
 				}
+
+				// Containers
+
+				writer.WriteLine();
+				writer.WriteLine("[Containers]");
+				writer.WriteLine("# ");
+				writer.WriteLine();
+
+
 			}
 
 			LoadItemData();
@@ -287,7 +296,8 @@ namespace ArithFeather.CustomItemSpawner {
 			None,
 			ItemLists,
 			QueuedLists,
-			SpawnGroups
+			SpawnGroups,
+			Containers
 		}
 
 		private static readonly Dictionary<string, Section> Sections = new Dictionary<string, Section> {
@@ -295,6 +305,7 @@ namespace ArithFeather.CustomItemSpawner {
 			{"spawn groups", Section.SpawnGroups},
 			{"item lists", Section.ItemLists},
 			{"queued lists", Section.QueuedLists},
+			{"containers", Section.Containers}
 		};
 
 		private static readonly List<string> LoadedItemData = new List<string>();
@@ -361,7 +372,7 @@ namespace ArithFeather.CustomItemSpawner {
 				var matchedGroups = match.Groups;
 
 				string name = matchedGroups["name"].Value;
-				int copies = 0;
+				int copies = 1;
 				int percent = 100;
 
 				var copyGroup = matchedGroups["copies"];

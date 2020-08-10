@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Exiled.API.Features;
 using MEC;
 using Random = UnityEngine.Random;
@@ -15,44 +16,47 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 
 			// Testing Lockers
 
-			//using (var writer =
-			//	new StreamWriter(File.Create(Path.Combine(Paths.Configs, "SpawnableItemsRaw") + ".txt")))
-			//{
-			//	var itemList = new List<SpawnableItem>();
+			using (var writer =
+				new StreamWriter(File.Create(Path.Combine(Paths.Configs, "SpawnableItemsRaw") + ".txt"))) {
+				var keySortedDictionary = new Dictionary<string, List<SpawnableItem>>();
 
-			//	var lockerItems = LockerManager.singleton.items;
-			//	var lockerItemCount = lockerItems.Length;
+				var lockerItems = LockerManager.singleton.items;
+				var lockerItemCount = lockerItems.Length;
 
-			//	//Group via same ID and CHANCE
-			//	for (int i = 0; i < lockerItemCount; i++)
-			//	{
-			//		var item = lockerItems[i];
+				for (int i = 0; i < lockerItemCount; i++) {
+					var lockerItem = lockerItems[i];
+					var key = lockerItem.itemTag;
 
-			//		var item = new SpawnableItem
-			//		{
-			//			chanceOfSpawn = oldItem.chanceOfSpawn,
-			//			copies = oldItem.copies, // so we can add them together.
-			//			inventoryId = oldItem.inventoryId,
-			//			itemTag = oldItem.itemTag,
-			//			name = oldItem.name
-			//		};
+					var item = new SpawnableItem {
+						chanceOfSpawn = lockerItem.chanceOfSpawn,
+						copies = lockerItem.copies,
+						inventoryId = lockerItem.inventoryId,
+						name = lockerItem.name
+					};
 
-			//		var index = itemList.FindIndex((spawnableItem) =>
-			//			item.chanceOfSpawn == spawnableItem.chanceOfSpawn &&
-			//			item.inventoryId == spawnableItem.inventoryId);
+					if (keySortedDictionary.TryGetValue(key, out var itemList)) {
+						itemList.Add(item);
+					} else keySortedDictionary.Add(key, new List<SpawnableItem> { item });
+				}
 
-			//		if (index == -1) // Not Found
-			//		{
-			//			itemList.Add(item);
-			//		}
-			//		else
-			//		{
-			//			//itemList[index].copies += item.copies;
-			//		}
-			//	}
+				foreach (var containers in keySortedDictionary) {
+					var key = containers.Key;
+					var itemList = containers.Value;
 
-			//}
+					var itemListCount = itemList.Count;
+					StringBuilder s = new StringBuilder($"{key}:");
 
+					for (int i = 0; i < itemListCount; i++) {
+						var item = itemList[i];
+
+						s.Append($"{(int)item.inventoryId}");
+						if (item.chanceOfSpawn != 100)
+					}
+				}
+			}
+
+			//var item = lockerItems[i];
+			//Log.Error($"{item.itemTag}:{item.inventoryId}%{item.chanceOfSpawn}#{item.copies}");
 			// Testing Lockers
 
 
