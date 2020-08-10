@@ -1,7 +1,7 @@
 ﻿namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 	public interface IItemObtainable
 	{
-		ItemType GetItem();
+		ItemData GetItem();
 
 		bool HasItems { get; }
 	}

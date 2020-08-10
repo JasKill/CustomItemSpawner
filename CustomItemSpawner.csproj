@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="ItemData.cs" />
     <Compile Include="ItemListTypes\SpawnChanceWrapper.cs" />
     <Compile Include="ItemListTypes\IItemObtainable.cs" />
     <Compile Include="ItemListTypes\ItemList.cs" />

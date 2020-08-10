@@ -19,7 +19,7 @@ namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 			_index = 0;
 		}
 
-		public ItemType GetItem() {
+		public ItemData GetItem() {
 			if (_index == _itemSize) _index = 0;
 
 			var itemType = _items[_index];

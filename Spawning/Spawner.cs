@@ -92,10 +92,10 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 		#region Static spawning methods
 
 		private static Inventory _cachedInventory;
-		public static void SpawnItem(ItemSpawnPoint point, ItemType itemType) {
-			if (itemType == ItemType.None) return;
+		public static void SpawnItem(ItemSpawnPoint point, ItemData itemType) {
+			if (itemType.Item == ItemType.None) return;
 
-			var pickup = _cachedInventory.SetPickup(itemType, -4.65664672E+11f, point.Position, point.Rotation, 0, 0, 0);
+			var pickup = _cachedInventory.SetPickup(itemType.Item, -4.65664672E+11f, point.Position, point.Rotation, 0, 0, 0);
 
 			if (CustomItemSpawner.Configs.EnableItemTracking) {
 				var listener = pickup.gameObject.AddComponent<PickupDisableTrigger>();
@@ -109,8 +109,12 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 			var spawnCount = spawns.Count;
 			for (int i = 0; i < spawnCount; i++) {
 				var spawn = spawns[i];
-				SpawnItem(spawn.ItemSpawnPoint, spawn.ItemType);
-				yield return Timing.WaitForOneFrame;
+				var copies = spawn.ItemData.Copies;
+
+				for (int j = 0; j < copies; j++) {
+					SpawnItem(spawn.ItemSpawnPoint, spawn.ItemData);
+					yield return Timing.WaitForOneFrame;
+				}
 			}
 		}
 
@@ -120,8 +124,7 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 
 		public void SpawnGroup_OnRoomIsFree(SpawnGroup spawnGroup) => FreeRooms.Insert(Random.Range(0, FreeRooms.Count), spawnGroup);
 
-		public void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev)
-		{
+		public void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev) {
 			if (CustomItemSpawner.Configs.EnableItemTracking) ev.Pickup.GetComponent<PickupDisableTrigger>()?.PickedUp();
 		}
 

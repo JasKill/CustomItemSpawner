@@ -19,15 +19,15 @@ namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 
 		public static readonly int ItemTypeLength = Enum.GetNames(typeof(ItemType)).Length;
 
-		public ItemType GetItem()
+		public ItemData GetItem()
 		{
-			if (!_wildCard)
-			{
-				return _itemType;
+			if (!_wildCard) {
+				return new ItemData(_itemType, 1);
 			}
 
 			var i = Random.Range(0, ItemTypeLength);
-			return (i == 36) ? ItemType.None : (ItemType) i;
+			var itemType = i == 36 ? ItemType.None : (ItemType) i;
+			return new ItemData(itemType, 1);
 		}
 
 		public bool HasItems => true;

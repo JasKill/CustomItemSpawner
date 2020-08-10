@@ -14,7 +14,7 @@ namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 			}
 		}
 
-		public ItemType GetItem() => _items[Random.Range(0, _itemSize)].GetItem();
+		public ItemData GetItem() => _items[Random.Range(0, _itemSize)].GetItem();
 
 		public bool HasItems => (_itemSize != 0);
 	}

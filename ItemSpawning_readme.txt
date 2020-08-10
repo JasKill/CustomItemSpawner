@@ -5,7 +5,8 @@
 # Each 'Spawn group' will spawn its items in order:
 # First: Spawn all items assigned to spawn. (* and 0 to 36)
 # Example: This will force the HID room to spawn the MicroHID.
-# [Spawn Groups]# Hid:16
+# [Spawn Groups]
+# Hid:16
 
 # Second: Spawn an item from a 'Queued List' (Until the Queued list is empty).
 # Example, this will make sure at least 2 checkpoint key cards will spawn somewhere in LCZ.
@@ -30,9 +31,12 @@
 # -You can add an Item List to a Queued List, but you can't add a Queued List to an Item List, or an Item List to an Item List.
 # -For spawn points inside duplicate rooms (like Plant Room), the items will be split across those rooms.
 
-# *NEW* You can gives your Lists a chance to spawn (Chance/100). Just use brackets beside the name.
-# Example: When the game tells this group to spawn a pistol, there's a 50% chance it will not spawn.
-# RandomPistol:13(50)
+# *NEW* Modifiers
+# % Chance To Spawn -You can gives your Lists and Items a chance to spawn (1-100%).
+# # Copies          -You can create more than one item per spawn point (1-20).
+
+# Example: When the game tells this group to spawn a pistol, there's a 50% chance it will spawn two pistols!
+# RandomPistol:13%50#2
 
 # [Items]
 

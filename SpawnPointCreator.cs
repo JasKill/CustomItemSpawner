@@ -10,6 +10,7 @@ using ArithFeather.AriToolKit.PointEditor;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
 using ArithFeather.CustomItemSpawner.Spawning;
 using Exiled.API.Features;
+using UnityEngine;
 using SpawnPoint = ArithFeather.AriToolKit.PointEditor.Point;
 
 namespace ArithFeather.CustomItemSpawner {
@@ -160,7 +161,7 @@ namespace ArithFeather.CustomItemSpawner {
 			"\n" +
 			"# First: Spawn all items assigned to spawn. (* and 0 to 36)\n" +
 			"# Example: This will force the HID room to spawn the MicroHID.\n" +
-			"# [Spawn Groups]" +
+			"# [Spawn Groups]\n" +
 			"# Hid:16\n" +
 			"\n" +
 			"# Second: Spawn an item from a 'Queued List' (Until the Queued list is empty).\n" +
@@ -186,9 +187,12 @@ namespace ArithFeather.CustomItemSpawner {
 			"# -You can add an Item List to a Queued List, but you can't add a Queued List to an Item List, or an Item List to an Item List.\n" +
 			"# -For spawn points inside duplicate rooms (like Plant Room), the items will be split across those rooms.\n" +
 			"\n" +
-			"# *NEW* You can gives your Lists a chance to spawn (Chance/100). Just use brackets beside the name.\n" +
-			"# Example: When the game tells this group to spawn a pistol, there's a 50% chance it will not spawn.\n" +
-			"# RandomPistol:13(50)\n\n";
+			"# *NEW* Modifiers\n" +
+			"# % Chance To Spawn -You can gives your Lists and Items a chance to spawn (1-100%).\n" +
+			"# # Copies          -You can create more than one item per spawn point (1-20).\n" +
+			"\n" +
+			"# Example: When the game tells this group to spawn a pistol, there's a 50% chance it will spawn two pistols!\n" +
+			"# RandomPistol:13%50#2\n\n";
 
 		private static void CreateItemDataFile() {
 			Log.Warn("Creating new ItemSpawnInfo file using default items.");
@@ -219,7 +223,6 @@ namespace ArithFeather.CustomItemSpawner {
 				writer.WriteLine("Uncommon:5,6,17,18,24,30,31,32");
 				writer.WriteLine("Rare:7,8,9,13,20,21");
 				writer.WriteLine("VeryRare:10,11,16");
-				writer.WriteLine("10%ChanceToSpawnHID:36,36,36,36,36,36,36,36,36,16");
 				writer.WriteLine();
 
 				// Display Queued Lists
@@ -293,7 +296,7 @@ namespace ArithFeather.CustomItemSpawner {
 		private static Section _lastFoundSection;
 
 		private static readonly Regex SectionHeaderRegex = new Regex(@"\[(?<Name>[a-zA-Z\s]*)\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
-		private static readonly Regex KeyChanceRegex = new Regex(@"([\s\d\w]*)(?:\?([\d]*)?)?", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+		private static readonly Regex KeyRegex = new Regex(@"^(?<name>[\s\d\w]+)(?:%(?<percent>[\d]+)|#(?<copies>[\d]+))*", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
 		private static void LoadItemData() {
 			if (!FileManager.FileExists(ItemDataFilePath)) return;
@@ -346,18 +349,45 @@ namespace ArithFeather.CustomItemSpawner {
 			SecondPass();
 		}
 
-		private static bool TryParseKey(string key, out GroupCollection matchedGroups) {
-			var match = KeyChanceRegex.Match(key);
+		private static bool TryParseKey(string key, out KeyData data) {
+			var match = KeyRegex.Match(key);
 
 			if (match.Success) {
-				matchedGroups = match.Groups;
+				var matchedGroups = match.Groups;
 
+				string name = matchedGroups["name"].Value;
+				int copies = 0;
+				int percent = 100;
+
+				var copyGroup = matchedGroups["copies"];
+				var percentGroup = matchedGroups["chance"];
+
+				if (copyGroup.Success) {
+					copies = Mathf.Clamp(int.Parse(copyGroup.Value), 1, 20);
+				}
+
+				if (percentGroup.Success) {
+					percent = Mathf.Clamp(int.Parse(percentGroup.Value), 1, 100);
+				}
+
+				data = new KeyData(name, percent, copies);
 				return true;
 			}
 
-			matchedGroups = null;
-			SectionKeyError(key, $"Could not parse key, probably something wrong with spawn chance.");
+			data = new KeyData();
 			return false;
+		}
+
+		private readonly struct KeyData {
+			public readonly int Copies;
+			public readonly int Chance;
+			public readonly string Key;
+
+			public KeyData(string key, int chance, int copies) {
+				Copies = copies;
+				Chance = chance;
+				Key = key.Trim();
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -375,8 +405,6 @@ namespace ArithFeather.CustomItemSpawner {
 		private static void SectionKeyError(string key, string error) => Log.Error($"Section [{_lastFoundSection}] Key [{key}] -- {error}");
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void ListNotExistError(string key) => SectionKeyError(key, "List does not exist!");
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void TooManySplitters(string key) => SectionKeyError(key, "Too many ':' splitters.");
 
 		private static void SecondPass() {
 			_lastFoundSection = Section.None;
@@ -395,7 +423,7 @@ namespace ArithFeather.CustomItemSpawner {
 				var key = sData[0].Trim();
 
 				if (sDataLength > 2) {
-					TooManySplitters(key);
+					SectionKeyError(key, "Too many ':' splitters.");
 					continue;
 				}
 
@@ -415,25 +443,13 @@ namespace ArithFeather.CustomItemSpawner {
 							for (int k = 0; k < dataLength; k++) {
 								var rawItem = data[k].Trim();
 
-								if (!TryParseKey(rawItem, out var matchedGroups)) continue;
-
-								var item = matchedGroups[1].Value.Trim();
-
-								var instance = GetInstance(item);
-
-								if (instance == null) continue;
+								if (!ParseKeyGetInstance(rawItem, out KeyData keyData, out IItemObtainable instance)) continue;
 
 								if (instance.GetType() != typeof(SavedItemType)) {
 									SectionKeyError(key,
-										$"Failed to add {item}. You can only add Items to Item Lists");
+										$"Failed to add {keyData.Key}. You can only add Items to Item Lists");
 								} else {
-
-									var secondGroup = matchedGroups[2];
-									if (!secondGroup.Success || !int.TryParse(secondGroup.Value, out var chance)) {
-										chance = 100;
-									}
-
-									theList.Add(new SpawnChanceWrapper(chance, (SavedItemType)instance));
+									theList.Add(new SpawnChanceWrapper(instance, keyData.Chance, keyData.Copies));
 								}
 							}
 
@@ -457,21 +473,9 @@ namespace ArithFeather.CustomItemSpawner {
 							for (int k = 0; k < dataLength; k++) {
 								var rawItem = data[k].Trim();
 
+								if (!ParseKeyGetInstance(rawItem, out KeyData keyData, out IItemObtainable instance)) continue;
 
-								if (!TryParseKey(rawItem, out var matchedGroups)) continue;
-
-								var item = matchedGroups[1].Value.Trim();
-
-								var instance = GetInstance(item);
-
-								if (instance == null) continue;
-
-								var secondGroup = matchedGroups[2];
-								if (!secondGroup.Success || !int.TryParse(secondGroup.Value, out var chance)) {
-									chance = 100;
-								}
-
-								theList.Add(new SpawnChanceWrapper(chance, instance));
+								theList.Add(new SpawnChanceWrapper(instance, keyData.Chance, keyData.Copies));
 							}
 
 							if (theList.Count != 0) {
@@ -497,22 +501,11 @@ namespace ArithFeather.CustomItemSpawner {
 						for (int j = 0; j < dataLength; j++) {
 							var rawItem = data[j].Trim();
 
-							if (!TryParseKey(rawItem, out var matchedGroups)) continue;
-
-							var item = matchedGroups[1].Value.Trim();
-
-							var instance = GetInstance(item);
-
-							if (instance == null) continue;
+							if (!ParseKeyGetInstance(rawItem, out KeyData keyData, out IItemObtainable instance)) continue;
 
 							dataAttached = true;
 
-							var secondGroup = matchedGroups[2];
-							if (!secondGroup.Success || !int.TryParse(secondGroup.Value, out var chance)) {
-								chance = 100;
-							}
-
-							var wrappedList = new SpawnChanceWrapper(chance, instance);
+							var wrappedList = new SpawnChanceWrapper(instance, keyData.Chance, keyData.Copies);
 
 							if (instance.GetType() == typeof(ItemList)) {
 								spawnGroup.ItemLists.Add(wrappedList);
@@ -534,6 +527,23 @@ namespace ArithFeather.CustomItemSpawner {
 			LoadedItemData.Clear();
 		}
 
+		private static bool ParseKeyGetInstance(string rawItem, out KeyData keyData, out IItemObtainable instance)
+		{
+			if (!TryParseKey(rawItem, out keyData))
+			{
+				SectionKeyError($"Regex could not parse [{rawItem}]", string.Empty);
+				instance = null;
+				return false;
+			}
+
+			var item = keyData.Key;
+
+			instance = GetInstance(item);
+
+			return instance != null;
+		}
+
+		
 		private static IItemObtainable GetInstance(string key) {
 			if (key.Equals("*")) return ItemTypeList[ItemTypeList.Count - 1];
 
@@ -549,7 +559,6 @@ namespace ArithFeather.CustomItemSpawner {
 				return ql;
 			}
 
-			//SectionKeyError(key, "Could not find instance of key.");
 			return null;
 		}
 

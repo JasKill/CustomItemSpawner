@@ -50,11 +50,11 @@ namespace ArithFeather.CustomItemSpawner {
 			return false;
 		}
 
-		public void SpawnItem(bool savedSpawn, ItemSpawnPoint point, ItemType itemType) {
+		public void SpawnItem(bool savedSpawn, ItemSpawnPoint point, ItemData itemData) {
 			_currentItemsSpawned++;
 			point.IsFree = false;
-			if (savedSpawn) SavedItemRoom.SavedRooms[point.CustomRoom.Id].SavedSpawns.Add(new SpawnInfo(point, itemType));
-			else Spawner.SpawnItem(point, itemType);
+			if (savedSpawn) SavedItemRoom.SavedRooms[point.CustomRoom.Id].SavedSpawns.Add(new SpawnInfo(point, itemData));
+			else Spawner.SpawnItem(point, itemData);
 		}
 
 		private ItemSpawnPoint GetRandomFreePoint() {
