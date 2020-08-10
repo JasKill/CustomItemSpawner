@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using Exiled.API.Features;
 using MEC;
 using Random = UnityEngine.Random;
 
@@ -6,46 +8,34 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 	public class Spawner {
 		public static readonly Spawner Instance = new Spawner();
 
-		public Spawner() => SpawnGroup.OnRoomIsFree += SpawnGroup_OnRoomIsFree;
-
 		private static List<SpawnGroup> Rooms => SpawnPointCreator.SpawnGroups;
 		public readonly List<SpawnGroup> FreeRooms = new List<SpawnGroup>();
-
-		//bool ContainItem(List<SpawnableItem> list, SpawnableItem item) {
-
-		//	foreach (var lockerItem in list) {
-
-		//		if (lockerItem != item &&
-		//			lockerItem.chanceOfSpawn == item.chanceOfSpawn &&
-		//			lockerItem.inventoryId == item.inventoryId) {
-		//			return true;
-		//		}
-		//	}
-
-		//	return false;
-		//}
 
 		public void Reset() {
 
 			// Testing Lockers
 
-			//using (var writer = new StreamWriter(File.Create(Path.Combine(Paths.Configs, "SpawnableItemsRaw") + ".txt"))) {
+			//using (var writer =
+			//	new StreamWriter(File.Create(Path.Combine(Paths.Configs, "SpawnableItemsRaw") + ".txt")))
+			//{
 			//	var itemList = new List<SpawnableItem>();
 
 			//	var lockerItems = LockerManager.singleton.items;
 			//	var lockerItemCount = lockerItems.Length;
 
-			//	// Group via same ID and CHANCE
-			//	for (int i = 0; i < lockerItemCount; i++) {
+			//	//Group via same ID and CHANCE
+			//	for (int i = 0; i < lockerItemCount; i++)
+			//	{
 			//		var item = lockerItems[i];
 
-			//		//var item = new SpawnableItem {
-			//		//	chanceOfSpawn = oldItem.chanceOfSpawn,
-			//		//	copies = oldItem.copies, // so we can add them together.
-			//		//	inventoryId = oldItem.inventoryId,
-			//		//	itemTag = oldItem.itemTag,
-			//		//	name = oldItem.name
-			//		//};
+			//		var item = new SpawnableItem
+			//		{
+			//			chanceOfSpawn = oldItem.chanceOfSpawn,
+			//			copies = oldItem.copies, // so we can add them together.
+			//			inventoryId = oldItem.inventoryId,
+			//			itemTag = oldItem.itemTag,
+			//			name = oldItem.name
+			//		};
 
 			//		var index = itemList.FindIndex((spawnableItem) =>
 			//			item.chanceOfSpawn == spawnableItem.chanceOfSpawn &&
@@ -54,67 +44,13 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 			//		if (index == -1) // Not Found
 			//		{
 			//			itemList.Add(item);
-			//		} else {
+			//		}
+			//		else
+			//		{
 			//			//itemList[index].copies += item.copies;
 			//		}
 			//	}
 
-			//	var spawnCount = itemList.Count;
-			//	for (int i = 0; i < spawnCount; i++) {
-			//		var item = itemList[i];
-			//		var numItems = Mathf.RoundToInt(100 / item.chanceOfSpawn) - 1;
-
-
-
-			//		writer.WriteLine($"CONTAINER: [{item.itemTag}] -- ITEM ID: [{(int)item.inventoryId}]  -- COPIES: [{item.copies + 1}] -- CHANCE TO SPAWN: [{item.chanceOfSpawn}]");
-
-			//	}
-
-				//for (int i = 0; i < lockerItemCount; i++) {
-				//	var lockerItem = lockerItems[i];
-
-				//	if (!ContainItem(newSpawnableItemList, lockerItem))
-				//		newSpawnableItemList.Add(lockerItem);
-				//}
-
-				//writer.WriteLine("[Item Lists]");
-
-				//var newSpawnCount = newSpawnableItemList.Count;
-
-				//for (int i = 0; i < newSpawnCount; i++) {
-				//	var item = newSpawnableItemList[i];
-
-				//	writer.WriteLine($"{item.inventoryId}:{(int)item.inventoryId}:{item.copies}:{item.chanceOfSpawn}");
-				//}
-
-				//writer.WriteLine();
-				//writer.WriteLine("[Containers]");
-				//writer.WriteLine();
-
-				//var keyCounter = new Dictionary<string, StringBuilder>();
-
-				//for (int i = 0; i < lockerItemCount; i++) {
-				//	var item = lockerItems[i];
-
-				//	var key = item.itemTag;
-				//	var itemId = item.inventoryId.ToString();
-
-				//	if (!string.IsNullOrWhiteSpace(itemId) && keyCounter.TryGetValue(key, out var value)) {
-				//		value.Append($",{itemId}");
-				//	} else {
-				//		keyCounter.Add(key, new StringBuilder($"{key}:{itemId}"));
-				//	}
-				//}
-
-				//foreach (var stringPair in keyCounter) {
-				//	writer.WriteLine(stringPair.Value.ToString());
-				//}
-				////for (int i = 0; i < length; i++)
-				////{
-				////	var item = spawnableItems[i];
-
-				////	writer.WriteLine($"name: {item.name} | tag: {item.itemTag} | Inventory ID: {item.inventoryId} | copies: {item.copies} | Spawn Chance: {item.chanceOfSpawn}");
-				////}
 			//}
 
 			// Testing Lockers
@@ -182,7 +118,7 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 
 		#region Endless Spawning
 
-		private void SpawnGroup_OnRoomIsFree(SpawnGroup spawnGroup) => FreeRooms.Insert(Random.Range(0, FreeRooms.Count), spawnGroup);
+		public void SpawnGroup_OnRoomIsFree(SpawnGroup spawnGroup) => FreeRooms.Insert(Random.Range(0, FreeRooms.Count), spawnGroup);
 
 		public void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev)
 		{
