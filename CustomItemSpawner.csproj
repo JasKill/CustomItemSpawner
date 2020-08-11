@@ -88,10 +88,13 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="ItemData.cs" />
+    <Compile Include="ItemListTypes\ContainerItem.cs" />
     <Compile Include="ItemListTypes\SpawnChanceWrapper.cs" />
     <Compile Include="ItemListTypes\IItemObtainable.cs" />
     <Compile Include="ItemListTypes\ItemList.cs" />
+    <Compile Include="ItemSpawnIO.cs" />
     <Compile Include="Patches\DoorOpenEventPatch.cs" />
+    <Compile Include="Patches\OnContainerGeneratePatch.cs" />
     <Compile Include="Spawning\SavedItemRoom.cs" />
     <Compile Include="SpawnGroup.cs" />
     <Compile Include="ItemListTypes\SpawnGroupData.cs" />

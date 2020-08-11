@@ -11,12 +11,12 @@ namespace ArithFeather.CustomItemSpawner {
 		public static Config Configs { get; private set; }
 
 		public CustomItemSpawner() {
-			SpawnPointCreator.Reload();
+			ItemSpawnIO.Reload();
 			Configs = Config;
 		}
 
 		public override string Author => "Arith";
-		public override Version Version => new Version("2.03");
+		public override Version Version => new Version("2.04");
 
 		private readonly Harmony _harmony = new Harmony("customItemSpawner");
 
@@ -49,7 +49,7 @@ namespace ArithFeather.CustomItemSpawner {
 			base.OnDisabled();
 		}
 
-		private void Server_ReloadedConfigs() => SpawnPointCreator.Reload();
+		private void Server_ReloadedConfigs() => ItemSpawnIO.Reload();
 
 		public static void CheckDoorItemSpawn(Door door) {
 			var customDoor = door.GetCustomDoor();

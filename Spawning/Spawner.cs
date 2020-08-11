@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using Exiled.API.Features;
 using MEC;
 using Random = UnityEngine.Random;
 
@@ -13,53 +10,6 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 		public readonly List<SpawnGroup> FreeRooms = new List<SpawnGroup>();
 
 		public void Reset() {
-
-			// Testing Lockers
-
-			using (var writer =
-				new StreamWriter(File.Create(Path.Combine(Paths.Configs, "SpawnableItemsRaw") + ".txt"))) {
-				var keySortedDictionary = new Dictionary<string, List<SpawnableItem>>();
-
-				var lockerItems = LockerManager.singleton.items;
-				var lockerItemCount = lockerItems.Length;
-
-				for (int i = 0; i < lockerItemCount; i++) {
-					var lockerItem = lockerItems[i];
-					var key = lockerItem.itemTag;
-
-					var item = new SpawnableItem {
-						chanceOfSpawn = lockerItem.chanceOfSpawn,
-						copies = lockerItem.copies,
-						inventoryId = lockerItem.inventoryId,
-						name = lockerItem.name
-					};
-
-					if (keySortedDictionary.TryGetValue(key, out var itemList)) {
-						itemList.Add(item);
-					} else keySortedDictionary.Add(key, new List<SpawnableItem> { item });
-				}
-
-				foreach (var containers in keySortedDictionary) {
-					var key = containers.Key;
-					var itemList = containers.Value;
-
-					var itemListCount = itemList.Count;
-					StringBuilder s = new StringBuilder($"{key}:");
-
-					for (int i = 0; i < itemListCount; i++) {
-						var item = itemList[i];
-
-						s.Append($"{(int)item.inventoryId}");
-						if (item.chanceOfSpawn != 100)
-					}
-				}
-			}
-
-			//var item = lockerItems[i];
-			//Log.Error($"{item.itemTag}:{item.inventoryId}%{item.chanceOfSpawn}#{item.copies}");
-			// Testing Lockers
-
-
 			_cachedInventory = PlayerManager.localPlayer.GetComponent<Inventory>();
 			FreeRooms.Clear();
 
