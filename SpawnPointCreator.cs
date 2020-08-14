@@ -26,57 +26,65 @@ namespace ArithFeather.CustomItemSpawner {
 			var spawnPointDictionaryCount = spawnPointDictionary.Count;
 
 			var itemGroupCount = SpawnGroupItemDictionary.Count;
-			if (spawnPointDictionaryCount == 0 || itemGroupCount == 0) {
-				Log.Error($"Could not make Spawn Groups. (Spawn Point Groups: {spawnPointDictionaryCount} | Item Groups: {itemGroupCount})");
-				return;
+			if (spawnPointDictionaryCount == 0 || itemGroupCount == 0)
+			{
+				Log.Error(
+					$"Could not make Spawn Groups. (Spawn Point Groups: {spawnPointDictionaryCount} | Item Groups: {itemGroupCount})");
 			}
+			else
+			{
 
-			SpawnGroups.Clear();
-			SpawnGroupDictionary.Clear();
+				SpawnGroups.Clear();
+				SpawnGroupDictionary.Clear();
 
-			// Group up the positions and item spawns via ID's
-			foreach (var pair in spawnPointDictionary) {
-				var key = pair.Key;
-				var spawnPoints = pair.Value;
+				// Group up the positions and item spawns via ID's
+				foreach (var pair in spawnPointDictionary)
+				{
+					var key = pair.Key;
+					var spawnPoints = pair.Value;
 
-				if (SpawnGroupItemDictionary.TryGetValue(key, out var groupData)) {
+					if (SpawnGroupItemDictionary.TryGetValue(key, out var groupData))
+					{
 
-					var itemList = new List<IItemObtainable>(groupData.Items.Count + groupData.QueuedLists.Count +
-														 groupData.ItemLists.Count);
+						var itemList = new List<IItemObtainable>(groupData.Items.Count + groupData.QueuedLists.Count +
+						                                         groupData.ItemLists.Count);
 
-					// Shuffle the lists before adding them
-					groupData.Items.UnityShuffle();
-					groupData.QueuedLists.UnityShuffle();
-					groupData.ItemLists.UnityShuffle();
+						// Shuffle the lists before adding them
+						groupData.Items.UnityShuffle();
+						groupData.QueuedLists.UnityShuffle();
+						groupData.ItemLists.UnityShuffle();
 
-					itemList.AddRange(groupData.Items);
-					itemList.AddRange(groupData.QueuedLists);
-					itemList.AddRange(groupData.ItemLists);
+						itemList.AddRange(groupData.Items);
+						itemList.AddRange(groupData.QueuedLists);
+						itemList.AddRange(groupData.ItemLists);
 
-					var spawnGroup = new SpawnGroup();
+						var spawnGroup = new SpawnGroup();
 
-					// Convert SpawnPoint class to ItemSpawnPoint class.
-					var newSpawnPointList = new List<ItemSpawnPoint>();
-					var pointCount = spawnPoints.Count;
-					for (int i = 0; i < pointCount; i++) {
-						newSpawnPointList.Add(new ItemSpawnPoint(spawnGroup, spawnPoints[i]));
+						// Convert SpawnPoint class to ItemSpawnPoint class.
+						var newSpawnPointList = new List<ItemSpawnPoint>();
+						var pointCount = spawnPoints.Count;
+						for (int i = 0; i < pointCount; i++)
+						{
+							newSpawnPointList.Add(new ItemSpawnPoint(spawnGroup, spawnPoints[i]));
+						}
+
+						spawnGroup.Initialize(key, itemList, newSpawnPointList);
+						SpawnGroupDictionary.Add(key, spawnGroup);
+						SpawnGroups.Add(spawnGroup);
 					}
-
-					spawnGroup.Initialize(key, itemList, newSpawnPointList);
-					SpawnGroupDictionary.Add(key, spawnGroup);
-					SpawnGroups.Add(spawnGroup);
 				}
-			}
 
-			Log.Info($"Found {SpawnGroups.Count} group(s) with items to spawn.");
+				Log.Info($"Found {SpawnGroups.Count} group(s) with items to spawn.");
 
-			// Shuffle Groups
-			SpawnGroups.UnityShuffle();
+				// Shuffle Groups
+				SpawnGroups.UnityShuffle();
 
-			// Shuffle Queue Data
-			var queueCount = QueuedListList.Count;
-			for (int i = 0; i < queueCount; i++) {
-				QueuedListList[i].Reset();
+				// Shuffle Queue Data
+				var queueCount = QueuedListList.Count;
+				for (int i = 0; i < queueCount; i++)
+				{
+					QueuedListList[i].Reset();
+				}
 			}
 
 			SavedItemRoom.CreateGlobalRooms();
@@ -99,11 +107,9 @@ namespace ArithFeather.CustomItemSpawner {
 				Parse(groupData.QueuedLists);
 				Parse(groupData.ItemLists);
 
-				void Parse(IReadOnlyList<IItemObtainable> items)
-				{
+				void Parse(IReadOnlyList<IItemObtainable> items) {
 					var itemCount = items.Count;
-					for (int i = 0; i < itemCount; i++)
-					{
+					for (int i = 0; i < itemCount; i++) {
 						var item = items[i] as ContainerItem;
 
 						if (item == null || !item.HasItems) continue;
