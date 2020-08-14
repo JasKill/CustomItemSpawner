@@ -10,11 +10,6 @@ namespace ArithFeather.CustomItemSpawner {
 	public class CustomItemSpawner : Plugin<Config> {
 		public static Config Configs { get; private set; }
 
-		public CustomItemSpawner() {
-			ItemSpawnIO.Reload();
-			Configs = Config;
-		}
-
 		public override string Author => "Arith";
 		public override Version Version => new Version("2.05");
 
@@ -22,6 +17,10 @@ namespace ArithFeather.CustomItemSpawner {
 
 		public override void OnEnabled() {
 			base.OnEnabled();
+
+			ItemSpawnIO.Reload();
+			Configs = Config;
+
 			_harmony.PatchAll();
 			Exiled.Events.Handlers.Server.ReloadedConfigs += Server_ReloadedConfigs;
 			PointAPI.OnLoadSpawnPoints += SpawnPointCreator.OnLoadSpawnPoints;
