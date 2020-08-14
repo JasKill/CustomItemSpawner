@@ -97,7 +97,7 @@ Rare:7,8,9,13,20,21
 VeryRare:10,11,16
 
 [Queued Lists]
-# Example queue below
+# Example queues below
 
 SpawnOneOfEachItem:3,2,3,13,Garbage,Garbage,Uncommon,Common
 
@@ -144,3 +144,4 @@ pedestal:31,32,17,18,17%74,18%50,17,18%50,17,17,17
 
 misclocker:14,15,15%50,1,1,1,3,14,14%50,34,34%50#2,28#4,29,33,33,22#3
 # Max Spawns: [24] -The basic locker.
+

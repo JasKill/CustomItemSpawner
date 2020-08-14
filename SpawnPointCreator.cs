@@ -18,7 +18,7 @@ namespace ArithFeather.CustomItemSpawner {
 		private static Dictionary<string, SpawnGroupData> ContainerGroupItemDictionary => ItemSpawnIO.ContainerGroupItemDictionary;
 		private static List<QueuedList> QueuedListList => ItemSpawnIO.QueuedListList;
 
-		public static void OnLoadSpawnPoints(int seed) {
+		public static void OnLoadSpawnPoints() {
 			// Need to call these here because creating the files requires game data to be loaded.
 			ItemSpawnIO.CheckFiles();
 
@@ -30,8 +30,6 @@ namespace ArithFeather.CustomItemSpawner {
 				Log.Error($"Could not make Spawn Groups. (Spawn Point Groups: {spawnPointDictionaryCount} | Item Groups: {itemGroupCount})");
 				return;
 			}
-
-			UnityEngine.Random.InitState(seed);
 
 			SpawnGroups.Clear();
 			SpawnGroupDictionary.Clear();
