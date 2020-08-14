@@ -50,7 +50,10 @@ namespace ArithFeather.CustomItemSpawner {
 
 		private void Server_ReloadedConfigs() => ItemSpawnIO.Reload();
 
-		public static void CheckDoorItemSpawn(Door door) {
+		public static void CheckDoorItemSpawn(Door door)
+		{
+			if (SavedItemRoom.SavedRooms.Count == 0) return;
+
 			var customDoor = door.GetCustomDoor();
 
 			CheckRoomItemsSpawned(customDoor.Room1.Id);
