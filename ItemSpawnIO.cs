@@ -22,18 +22,26 @@ namespace ArithFeather.CustomItemSpawner {
 		public static PointList SpawnPointList;
 
 		// Used for recursive deserialization
-		private static readonly List<SavedItemType> ItemTypeList = new List<SavedItemType>();
-		private static readonly Dictionary<string, QueuedList> QueuedListDictionary = new Dictionary<string, QueuedList>();
-		private static readonly Dictionary<string, ItemList> ItemListDictionary = new Dictionary<string, ItemList>();
+		public static readonly List<SavedItemType> ItemTypeList = new List<SavedItemType>();
+		public static readonly Dictionary<string, QueuedList> QueuedListDictionary = new Dictionary<string, QueuedList>();
+		public static readonly Dictionary<string, ItemList> ItemListDictionary = new Dictionary<string, ItemList>();
 		// Required to make the round data
 		public static readonly Dictionary<string, SpawnGroupData> SpawnGroupItemDictionary = new Dictionary<string, SpawnGroupData>();
+		public static readonly Dictionary<string, SpawnGroupData> EndlessSpawnGroupItemDictionary = new Dictionary<string, SpawnGroupData>();
 		public static readonly Dictionary<string, SpawnGroupData> ContainerGroupItemDictionary = new Dictionary<string, SpawnGroupData>();
 
 		// Used for randomizing queue lists
-		public static readonly List<QueuedList> QueuedListList = new List<QueuedList>();
+		private static readonly List<QueuedList> QueuedListList = new List<QueuedList>();
 
 		private static bool ItemFileExists { get; set; }
 		private static bool SpawnFileExists { get; set; }
+
+		public static void ShuffleQueueData() {
+			var queueCount = QueuedListList.Count;
+			for (int i = 0; i < queueCount; i++) {
+				QueuedListList[i].Reset();
+			}
+		}
 
 		public static void Reload() {
 			LoadItemData();
@@ -273,6 +281,13 @@ namespace ArithFeather.CustomItemSpawner {
 					writer.WriteLine(containerDescription[key]);
 					writer.WriteLine();
 				}
+
+				// Endless Groups
+
+				writer.WriteLine();
+				writer.WriteLine("[Endless Groups]");
+				writer.WriteLine("# Endless groups work the same way as Spawn Groups. These groups require another plugin to make work.");
+				writer.WriteLine("# Endless groups will do nothing on their own, they are only used for spawning items during the game (Not at the start).");
 			}
 
 			LoadItemData();
@@ -291,6 +306,7 @@ namespace ArithFeather.CustomItemSpawner {
 			QueuedListDictionary.Clear();
 			ItemListDictionary.Clear();
 			SpawnGroupItemDictionary.Clear();
+			EndlessSpawnGroupItemDictionary.Clear();
 			QueuedListList.Clear();
 			ContainerGroupItemDictionary.Clear();
 
@@ -494,6 +510,43 @@ namespace ArithFeather.CustomItemSpawner {
 						else ListNotExistError(key);
 
 						break;
+
+					case Section.EndlessGroups:
+
+						groupExists = EndlessSpawnGroupItemDictionary.TryGetValue(key, out spawnGroup);
+
+						if (!groupExists) spawnGroup = new SpawnGroupData();
+
+						dataAttached = false;
+
+						for (int j = 0; j < dataLength; j++) {
+							var rawItem = data[j].Trim();
+
+							if (!ParseKeyGetInstance(rawItem, out KeyData keyData, out IItemObtainable instance)) {
+								if (!string.IsNullOrWhiteSpace(rawItem)) SectionKeyError(key, $"Regex could not parse [{rawItem}]");
+								continue;
+							}
+
+							dataAttached = true;
+
+							var wrappedList = new SpawnChanceWrapper(instance, keyData.Chance, keyData.Copies);
+
+							if (instance.GetType() == typeof(ItemList)) {
+								spawnGroup.ItemLists.Add(wrappedList);
+							}
+							else if (instance.GetType() == typeof(QueuedList)) {
+								spawnGroup.QueuedLists.Add(wrappedList);
+							}
+							else spawnGroup.Items.Add(wrappedList);
+						}
+
+						if (!groupExists && dataAttached)
+							SpawnGroupItemDictionary.Add(key, spawnGroup);
+						else if (groupExists)
+							SectionKeyError(key, $"Key already exists, merging items...");
+						else ListNotExistError(key);
+
+						break;
 				}
 			}
 
@@ -569,7 +622,8 @@ namespace ArithFeather.CustomItemSpawner {
 			{"spawn groups", Section.SpawnGroups},
 			{"item lists", Section.ItemLists},
 			{"queued lists", Section.QueuedLists},
-			{"containers", Section.Containers}
+			{"containers", Section.Containers},
+			{"endless groups", Section.EndlessGroups},
 		};
 
 		private static Section _lastFoundSection;
@@ -595,7 +649,8 @@ namespace ArithFeather.CustomItemSpawner {
 			ItemLists,
 			QueuedLists,
 			SpawnGroups,
-			Containers
+			Containers,
+			EndlessGroups
 		}
 
 		internal readonly struct KeyData {

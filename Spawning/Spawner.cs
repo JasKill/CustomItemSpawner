@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 using MEC;
-using Random = UnityEngine.Random;
 
 namespace ArithFeather.CustomItemSpawner.Spawning {
-	public class Spawner {
+	internal class Spawner {
 		public static readonly Spawner Instance = new Spawner();
 
 		private static List<SpawnGroup> Rooms => SpawnPointCreator.SpawnGroups;
 		public readonly List<SpawnGroup> FreeRooms = new List<SpawnGroup>();
 
+		/// <summary>
+		/// Called on WaitingForPlayers.
+		/// Spawns start-game items.
+		/// </summary>
 		public void Reset() {
 			_cachedInventory = PlayerManager.localPlayer.GetComponent<Inventory>();
 			FreeRooms.Clear();
@@ -24,6 +27,7 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 			}
 
 			FreeRooms.ShuffleList();
+			ItemSpawnIO.ShuffleQueueData();
 
 			SpawnStartItems();
 		}
@@ -43,15 +47,13 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 				SpawnStartItems();
 		}
 
-		#region Static spawning methods
-
 		private static Inventory _cachedInventory;
 		public static PickupDisableTrigger SpawnItem(ItemSpawnPoint point, ItemData itemType) {
 			if (itemType.Item == ItemType.None) return null;
 
 			var pickup = _cachedInventory.SetPickup(itemType.Item, -4.65664672E+11f, point.Position, point.Rotation, 0, 0, 0);
 
-			if (CustomItemSpawner.Configs.EnableItemTracking) {
+			if (EndlessSpawning.EnableItemTracking) {
 				var listener = pickup.gameObject.AddComponent<PickupDisableTrigger>();
 				listener.Initialize(point);
 				return listener;
@@ -91,17 +93,5 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 				}
 			}
 		}
-
-		#endregion
-
-		#region Endless Spawning
-
-		public void SpawnGroup_OnRoomIsFree(SpawnGroup spawnGroup) => FreeRooms.Insert(Random.Range(0, FreeRooms.Count), spawnGroup);
-
-		public void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev) {
-			if (CustomItemSpawner.Configs.EnableItemTracking) ev.Pickup.GetComponent<PickupDisableTrigger>()?.PickedUp();
-		}
-
-		#endregion
 	}
 }

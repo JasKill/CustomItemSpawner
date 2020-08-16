@@ -2,15 +2,19 @@
 using UnityEngine;
 
 namespace ArithFeather.CustomItemSpawner.Spawning {
-	public class PickupDisableTrigger : MonoBehaviour {
+	internal class PickupDisableTrigger : MonoBehaviour {
 		private ItemSpawnPoint _itemSpawnPoint;
 
 		public List<PickupDisableTrigger> Copies = new List<PickupDisableTrigger>();
 
 		public void Initialize(ItemSpawnPoint itemSpawnPoint) => _itemSpawnPoint = itemSpawnPoint;
 
+		public static event CustomItemSpawner.PickedUpItem OnPickedUpItem;
+
 		public void PickedUp() {
 			_itemSpawnPoint?.SetFree();
+
+			OnPickedUpItem?.Invoke(_itemSpawnPoint);
 
 			var copyCount = Copies.Count;
 			for (int i = 0; i < copyCount; i++) {

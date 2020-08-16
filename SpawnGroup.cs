@@ -48,6 +48,20 @@ namespace ArithFeather.CustomItemSpawner {
 			}
 
 			return false;
+		}       
+		
+		/// <returns>Were we able to spawn a start item?</returns>
+		public bool TrySpawnItem(IItemObtainable item) {
+			while (!AtMaxItemSpawns && !SpawnedAllItems) {
+				_indexer++;
+
+				if (item.HasItems) {
+					SpawnItem(false, GetRandomFreePoint(), item.GetItem());
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		public void SpawnItem(bool savedSpawn, ItemSpawnPoint point, ItemData itemData) {
@@ -57,7 +71,7 @@ namespace ArithFeather.CustomItemSpawner {
 			else Spawner.SpawnItem(point, itemData);
 		}
 
-		private ItemSpawnPoint GetRandomFreePoint() {
+		public ItemSpawnPoint GetRandomFreePoint() {
 			Points.UnityShuffle();
 			var pointsLength = Points.Count;
 

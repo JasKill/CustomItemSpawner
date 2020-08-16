@@ -2,7 +2,7 @@
 using ArithFeather.AriToolKit;
 
 namespace ArithFeather.CustomItemSpawner.Spawning {
-	public class SavedItemRoom {
+	internal class SavedItemRoom {
 		public readonly List<SpawnInfo> SavedSpawns = new List<SpawnInfo>();
 
 		public bool HasBeenEntered { get; set; }
