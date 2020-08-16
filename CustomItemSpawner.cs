@@ -11,7 +11,7 @@ namespace ArithFeather.CustomItemSpawner {
 
 		public override string Author => "Arith";
 
-		public override Version Version => new Version("2.05");
+		public override Version Version => new Version("2.06");
 
 		private readonly Harmony _harmony = new Harmony("customItemSpawner");
 

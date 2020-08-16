@@ -84,7 +84,7 @@ namespace ArithFeather.CustomItemSpawner {
 				var localItemPosition = roomTransform.InverseTransformPoint(itemTransform.position);
 				var localItemRotation = roomTransform.InverseTransformDirection(itemTransform.eulerAngles);
 
-				spawnPoints.Add(new SpawnPoint(dat.posID.ToLowerInvariant(), room.Room.RoomType, room.Room.Zone, localItemPosition,
+				spawnPoints.Add(new SpawnPoint(dat.posID.ToLowerInvariant(), room.Room.Type, room.Room.Zone, localItemPosition,
 					localItemRotation));
 			}
 
