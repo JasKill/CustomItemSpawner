@@ -53,7 +53,7 @@ namespace ArithFeather.CustomItemSpawner {
 
 		private void Server_ReloadedConfigs() => ItemSpawnIO.Reload();
 
-		public void CheckDoorItemSpawn(Door door)
+		public static void CheckDoorItemSpawn(Door door)
 		{
 			if (SavedItemRoom.SavedRooms.Count == 0) return;
 
@@ -66,7 +66,7 @@ namespace ArithFeather.CustomItemSpawner {
 			}
 		}
 
-		private void CheckRoomItemsSpawned(int id) {
+		public static void CheckRoomItemsSpawned(int id) {
 			var room = SavedItemRoom.SavedRooms[id];
 
 			if (room != null && !room.HasBeenEntered) {

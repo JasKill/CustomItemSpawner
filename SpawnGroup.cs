@@ -4,7 +4,8 @@ using ArithFeather.CustomItemSpawner.ItemListTypes;
 using ArithFeather.CustomItemSpawner.Spawning;
 
 namespace ArithFeather.CustomItemSpawner {
-	public class SpawnGroup {
+	public class SpawnGroup
+	{
 		public delegate void RoomIsFree(SpawnGroup spawnGroup);
 		public static event RoomIsFree OnRoomIsFree;
 
