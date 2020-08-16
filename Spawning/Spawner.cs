@@ -27,7 +27,7 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 			}
 
 			FreeRooms.ShuffleList();
-			ItemSpawnIO.ShuffleQueueData();
+			//ItemSpawnIO.ShuffleQueueData();
 
 			SpawnStartItems();
 		}

@@ -15,10 +15,10 @@ namespace ArithFeather.CustomItemSpawner {
 		public static readonly List<SpawnableItem> SpawnableItems = new List<SpawnableItem>();
 
 		private static PointList PointList => ItemSpawnIO.SpawnPointList;
-		private static Dictionary<string, SpawnGroupData> SpawnGroupItemDictionary => ItemSpawnIO.SpawnGroupItemDictionary;
+		private static IReadOnlyDictionary<string, SpawnGroupData> SpawnGroupItemDictionary => ItemSpawnIO.SpawnGroupItemDictionary;
 
-		private static Dictionary<string, SpawnGroupData> EndlessSpawnGroupItemDictionary => ItemSpawnIO.EndlessSpawnGroupItemDictionary;
-		private static Dictionary<string, SpawnGroupData> ContainerGroupItemDictionary => ItemSpawnIO.ContainerGroupItemDictionary;
+		private static IReadOnlyDictionary<string, SpawnGroupData> EndlessSpawnGroupItemDictionary => ItemSpawnIO.EndlessSpawnGroupItemDictionary;
+		private static IReadOnlyDictionary<string, SpawnGroupData> ContainerGroupItemDictionary => ItemSpawnIO.ContainerGroupItemDictionary;
 
 		public static void OnLoadSpawnPoints() {
 			// Need to call these here because creating the files requires game data to be loaded.
@@ -44,16 +44,14 @@ namespace ArithFeather.CustomItemSpawner {
 
 				if (SpawnGroupItemDictionary.TryGetValue(key, out var groupData)) {
 
-					var itemList = new List<IItemObtainable>(groupData.Items.Count + groupData.QueuedLists.Count +
+					var itemList = new List<IItemObtainable>(groupData.Items.Count +
 														 groupData.ItemLists.Count);
 
 					// Shuffle the lists before adding them
 					groupData.Items.UnityShuffle();
-					groupData.QueuedLists.UnityShuffle();
 					groupData.ItemLists.UnityShuffle();
 
 					itemList.AddRange(groupData.Items);
-					itemList.AddRange(groupData.QueuedLists);
 					itemList.AddRange(groupData.ItemLists);
 
 					var spawnGroup = new SpawnGroup();
@@ -62,7 +60,7 @@ namespace ArithFeather.CustomItemSpawner {
 					var newSpawnPointList = new List<ItemSpawnPoint>();
 					var pointCount = spawnPoints.Count;
 					for (int i = 0; i < pointCount; i++) {
-						newSpawnPointList.Add(new ItemSpawnPoint(spawnGroup, spawnPoints[i]));
+						newSpawnPointList.Add(new ItemSpawnPoint(spawnPoints[i]));
 					}
 
 					spawnGroup.Initialize(key, itemList, newSpawnPointList);
@@ -73,15 +71,13 @@ namespace ArithFeather.CustomItemSpawner {
 				// Add in our endless spawns information.
 				if (EndlessSpawnGroupItemDictionary.TryGetValue(key, out groupData)) {
 
-					var itemList = new List<IItemObtainable>(groupData.Items.Count + groupData.QueuedLists.Count +
+					var itemList = new List<IItemObtainable>(groupData.Items.Count +
 														 groupData.ItemLists.Count);
 					// Shuffle the lists before adding them
 					groupData.Items.UnityShuffle();
-					groupData.QueuedLists.UnityShuffle();
 					groupData.ItemLists.UnityShuffle();
 
 					itemList.AddRange(groupData.Items);
-					itemList.AddRange(groupData.QueuedLists);
 					itemList.AddRange(groupData.ItemLists);
 
 					EndlessSpawningItemsDictionary.Add(key, itemList);
@@ -103,11 +99,9 @@ namespace ArithFeather.CustomItemSpawner {
 
 				// Shuffle the lists before adding them
 				groupData.Items.UnityShuffle();
-				groupData.QueuedLists.UnityShuffle();
 				groupData.ItemLists.UnityShuffle();
 
 				Parse(groupData.Items);
-				Parse(groupData.QueuedLists);
 				Parse(groupData.ItemLists);
 
 				void Parse(IReadOnlyList<IItemObtainable> items) {

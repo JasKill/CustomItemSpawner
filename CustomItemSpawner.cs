@@ -1,5 +1,7 @@
-﻿using ArithFeather.AriToolKit;
+﻿using System.Collections.Generic;
+using ArithFeather.AriToolKit;
 using ArithFeather.AriToolKit.PointEditor;
+using ArithFeather.CustomItemSpawner.ItemListTypes;
 using ArithFeather.CustomItemSpawner.Patches;
 using ArithFeather.CustomItemSpawner.Spawning;
 using Exiled.API.Features;
@@ -17,6 +19,13 @@ namespace ArithFeather.CustomItemSpawner {
 
 		public delegate void PickedUpItem(ItemSpawnPoint itemSpawnPoint);
 		public static event PickedUpItem OnPickedUpItem;
+
+		public static IReadOnlyList<SavedItemType> ItemTypeList => ItemSpawnIO.ItemTypeList;
+		public static IReadOnlyDictionary<string, ItemList> ItemListDictionary => ItemSpawnIO.ItemListDictionary;
+
+		public static IReadOnlyDictionary<string, SpawnGroupData> SpawnGroupItemDictionary => ItemSpawnIO.SpawnGroupItemDictionary;
+		public static IReadOnlyDictionary<string, SpawnGroupData> EndlessSpawnGroupItemDictionary => ItemSpawnIO.EndlessSpawnGroupItemDictionary;
+		public static IReadOnlyDictionary<string, SpawnGroupData> ContainerGroupItemDictionary => ItemSpawnIO.ContainerGroupItemDictionary;
 
 		public override void OnEnabled() {
 			base.OnEnabled();

@@ -32,17 +32,17 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 			Exiled.Events.Handlers.Player.PickingUpItem -= Player_PickingUpItem;
 		}
 
-		/// <summary>
-		/// Resets a specific queued list by re-randomizing and resetting its index to 0.
-		/// </summary>
-		/// <param name="list"></param>
-		public static void ResetQueuedList(string list)
-		{
-			if (ItemSpawnIO.QueuedListDictionary.TryGetValue(list, out var queuedList))
-			{
-				queuedList.Reset();
-			}
-		}
+		///// <summary>
+		///// Resets a specific queued list by re-randomizing and resetting its index to 0.
+		///// </summary>
+		///// <param name="list"></param>
+		//public static void ResetQueuedList(string list)
+		//{
+		//	if (ItemSpawnIO.QueuedListDictionary.TryGetValue(list, out var queuedList))
+		//	{
+		//		queuedList.Reset();
+		//	}
+		//}
 
 		/// <summary>
 		/// Spawns all endless group items inside this group.
@@ -65,45 +65,6 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 					if (nextItem.HasItems) {
 						spawnGroup.SpawnItem(false, spawnGroup.GetRandomFreePoint(), nextItem.GetItem());
 					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// Resets the queuedList and spawns it across groups at random
-		/// </summary>
-		public static void SpawnQueuedListInGroups(string queuedList, params string[] groups)
-		{
-			if (!ItemSpawnIO.QueuedListDictionary.TryGetValue(queuedList, out var list))
-			{
-				Log.Error($"Trying to spawn queued list: {queuedList}. But no list exists.");
-				return;
-			}
-
-			var groupList = new List<SpawnGroup>();
-			var groupSize = groups.Length;
-			for (int i = 0; i < groupSize; i++)
-			{
-				var key = groups[i];
-
-				if (SpawnGroupDictionary.TryGetValue(key, out var spawnGroup))
-				{
-					groupList.Add(spawnGroup);
-				}
-			}
-
-			groupList.UnityShuffle();
-
-			var indexer = 0;
-
-			while (groupList.Count != 0 && list.HasItems)
-			{
-				if (indexer == groupList.Count) indexer = 0;
-
-				var group = groupList[indexer];
-
-				if (group.AtMaxItemSpawns || !group.TrySpawnItem(list)) {
-					groupList.RemoveAt(indexer);
 				}
 			}
 		}

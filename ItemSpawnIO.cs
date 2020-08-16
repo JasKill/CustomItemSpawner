@@ -23,25 +23,14 @@ namespace ArithFeather.CustomItemSpawner {
 
 		// Used for recursive deserialization
 		public static readonly List<SavedItemType> ItemTypeList = new List<SavedItemType>();
-		public static readonly Dictionary<string, QueuedList> QueuedListDictionary = new Dictionary<string, QueuedList>();
 		public static readonly Dictionary<string, ItemList> ItemListDictionary = new Dictionary<string, ItemList>();
 		// Required to make the round data
 		public static readonly Dictionary<string, SpawnGroupData> SpawnGroupItemDictionary = new Dictionary<string, SpawnGroupData>();
 		public static readonly Dictionary<string, SpawnGroupData> EndlessSpawnGroupItemDictionary = new Dictionary<string, SpawnGroupData>();
 		public static readonly Dictionary<string, SpawnGroupData> ContainerGroupItemDictionary = new Dictionary<string, SpawnGroupData>();
 
-		// Used for randomizing queue lists
-		private static readonly List<QueuedList> QueuedListList = new List<QueuedList>();
-
 		private static bool ItemFileExists { get; set; }
 		private static bool SpawnFileExists { get; set; }
-
-		public static void ShuffleQueueData() {
-			var queueCount = QueuedListList.Count;
-			for (int i = 0; i < queueCount; i++) {
-				QueuedListList[i].Reset();
-			}
-		}
 
 		public static void Reload() {
 			LoadItemData();
@@ -113,16 +102,6 @@ namespace ArithFeather.CustomItemSpawner {
 			"# [Spawn Groups]\n" +
 			"# Hid:16\n" +
 			"\n" +
-			"# Second: Spawn an item from a 'Queued List' (Until the Queued list is empty).\n" +
-			"# Example, this will make sure at least 2 checkpoint key cards will spawn somewhere in LCZ.\n" +
-			"# [Queued Lists]\n" +
-			"# SpawnLCZ:3,3\n" +
-			"# [Spawn Groups]\n" +
-			"# LCZ_Toilets:SpawnLCZ\n" +
-			"# LCZ_372:SpawnLCZ\n" +
-			"# LCZ_Cafe:SpawnLCZ\n" +
-			"# LCZ_173:SpawnLCZ\n" +
-			"\n" +
 			"# Third: Any 'Item Lists' you attached to the 'Spawn Group' will spawn a random item from that list.\n" +
 			"# Example: You can use this for rarities.\n" +
 			"# [Item Lists]\n" +
@@ -173,14 +152,6 @@ namespace ArithFeather.CustomItemSpawner {
 				writer.WriteLine("Uncommon:5,6,17,18,24,30,31,32");
 				writer.WriteLine("Rare:7,8,9,13,20,21");
 				writer.WriteLine("VeryRare:10,11,16");
-				writer.WriteLine();
-
-				// Display Queued Lists
-
-				writer.WriteLine("[Queued Lists]");
-				writer.WriteLine("# Example queues below");
-				writer.WriteLine();
-				writer.WriteLine("SpawnOneOfEachItem:3,2,3,13,Garbage,Garbage,Uncommon,Common");
 				writer.WriteLine();
 
 				// Display Spawn Groups
@@ -303,11 +274,9 @@ namespace ArithFeather.CustomItemSpawner {
 
 			LoadedItemData.Clear();
 			ItemTypeList.Clear();
-			QueuedListDictionary.Clear();
 			ItemListDictionary.Clear();
 			SpawnGroupItemDictionary.Clear();
 			EndlessSpawnGroupItemDictionary.Clear();
-			QueuedListList.Clear();
 			ContainerGroupItemDictionary.Clear();
 
 			using (var reader = File.OpenText(ItemDataFilePath)) {
@@ -320,7 +289,8 @@ namespace ArithFeather.CustomItemSpawner {
 
 				_lastFoundSection = Section.None;
 
-				while (!reader.EndOfStream) {
+				while (!reader.EndOfStream)
+				{
 					var line = reader.ReadLine();
 
 					if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
@@ -339,12 +309,6 @@ namespace ArithFeather.CustomItemSpawner {
 
 					if (_lastFoundSection == Section.ItemLists && !ItemListDictionary.ContainsKey(key))
 						ItemListDictionary.Add(key, new ItemList());
-
-					else if (_lastFoundSection == Section.QueuedLists && !QueuedListDictionary.ContainsKey(key)) {
-						var qList = new QueuedList();
-						QueuedListList.Add(qList);
-						QueuedListDictionary.Add(key, qList);
-					}
 				}
 			}
 
@@ -412,35 +376,6 @@ namespace ArithFeather.CustomItemSpawner {
 
 						break;
 
-					case Section.QueuedLists:
-
-						if (QueuedListDictionary.TryGetValue(key, out var queuedList)) {
-
-							var theList = new List<IItemObtainable>(dataLength);
-
-							for (int k = 0; k < dataLength; k++) {
-								var rawItem = data[k].Trim();
-
-								if (!ParseKeyGetInstance(rawItem, out KeyData keyData, out IItemObtainable instance)) {
-									if (!string.IsNullOrWhiteSpace(rawItem)) SectionKeyError(key, $"Regex could not parse [{rawItem}]");
-									continue;
-								}
-
-								theList.Add(new SpawnChanceWrapper(instance, keyData.Chance, keyData.Copies));
-							}
-
-							if (theList.Count != 0) {
-								queuedList.Items = theList;
-								continue;
-							}
-						}
-
-						ListNotExistError(key);
-						QueuedListList.Remove(queuedList);
-						QueuedListDictionary.Remove(key);
-
-						break;
-
 					case Section.SpawnGroups:
 
 						var groupExists = SpawnGroupItemDictionary.TryGetValue(key, out var spawnGroup);
@@ -463,8 +398,6 @@ namespace ArithFeather.CustomItemSpawner {
 
 							if (instance.GetType() == typeof(ItemList)) {
 								spawnGroup.ItemLists.Add(wrappedList);
-							} else if (instance.GetType() == typeof(QueuedList)) {
-								spawnGroup.QueuedLists.Add(wrappedList);
 							} else spawnGroup.Items.Add(wrappedList);
 						}
 
@@ -498,8 +431,6 @@ namespace ArithFeather.CustomItemSpawner {
 
 							if (instance.GetType() == typeof(ItemList)) {
 								spawnGroup.ItemLists.Add(containerItem);
-							} else if (instance.GetType() == typeof(QueuedList)) {
-								spawnGroup.QueuedLists.Add(containerItem);
 							} else spawnGroup.Items.Add(containerItem);
 						}
 
@@ -533,11 +464,7 @@ namespace ArithFeather.CustomItemSpawner {
 
 							if (instance.GetType() == typeof(ItemList)) {
 								spawnGroup.ItemLists.Add(wrappedList);
-							}
-							else if (instance.GetType() == typeof(QueuedList)) {
-								spawnGroup.QueuedLists.Add(wrappedList);
-							}
-							else spawnGroup.Items.Add(wrappedList);
+							} else spawnGroup.Items.Add(wrappedList);
 						}
 
 						if (!groupExists && dataAttached)
@@ -607,10 +534,6 @@ namespace ArithFeather.CustomItemSpawner {
 				return il;
 			}
 
-			if (QueuedListDictionary.TryGetValue(key, out var ql)) {
-				return ql;
-			}
-
 			return null;
 		}
 
@@ -621,7 +544,6 @@ namespace ArithFeather.CustomItemSpawner {
 			{"none", Section.None},
 			{"spawn groups", Section.SpawnGroups},
 			{"item lists", Section.ItemLists},
-			{"queued lists", Section.QueuedLists},
 			{"containers", Section.Containers},
 			{"endless groups", Section.EndlessGroups},
 		};
@@ -647,7 +569,6 @@ namespace ArithFeather.CustomItemSpawner {
 		internal enum Section {
 			None,
 			ItemLists,
-			QueuedLists,
 			SpawnGroups,
 			Containers,
 			EndlessGroups

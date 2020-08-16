@@ -25,6 +25,13 @@ namespace ArithFeather.CustomItemSpawner {
 			Items = items;
 			Points = points;
 			MaxItemsAllowed = points.Count;
+
+			// Hook up to spawn point event
+			var pointCount = points.Count;
+			for (int i = 0; i < pointCount; i++)
+			{
+				points[i].OnNotifyPointFree += TriggerItemSetFree;
+			}
 		}
 
 		public void TriggerItemSetFree() {
