@@ -2,17 +2,17 @@
 using ArithFeather.AriToolKit;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
 using ArithFeather.CustomItemSpawner.Spawning;
+using Exiled.API.Features;
 
 namespace ArithFeather.CustomItemSpawner {
-	public class SpawnGroup
-	{
-		public delegate void RoomIsFree(SpawnGroup spawnGroup);
-		public static event RoomIsFree OnRoomIsFree;
+	public class SpawnGroup {
+		public delegate void GroupIsFree(SpawnGroup spawnGroup);
+		public static event GroupIsFree OnGroupIsFree;
 
-		public string Id { get; private set; }
-		public List<IItemObtainable> Items { get; private set; }
-		public List<ItemSpawnPoint> Points { get; private set; }
-		public int MaxItemsAllowed { get; private set; }
+		public string Id { get; }
+		private List<IItemObtainable> Items { get; }
+		private List<ItemSpawnPoint> Points { get; }
+		public int MaxItemsAllowed { get; }
 
 		public bool AtMaxItemSpawns => _currentItemsSpawned >= MaxItemsAllowed;
 		public bool SpawnedAllItems => _indexer >= Items.Count;
@@ -20,62 +20,55 @@ namespace ArithFeather.CustomItemSpawner {
 		private int _currentItemsSpawned;
 		private int _indexer;
 
-		public void Initialize(string id, List<IItemObtainable> items, List<ItemSpawnPoint> points) {
+		public SpawnGroup(string id, List<IItemObtainable> items, List<ItemSpawnPoint> points) {
 			Id = id;
-			Items = items;
+			Items = items ?? (new List<IItemObtainable>());
 			Points = points;
 			MaxItemsAllowed = points.Count;
 
 			// Hook up to spawn point event
 			var pointCount = points.Count;
-			for (int i = 0; i < pointCount; i++)
-			{
-				points[i].OnNotifyPointFree += TriggerItemSetFree;
+			for (int i = 0; i < pointCount; i++) {
+				points[i].OnNotifyPointFreedom += SpawnGroup_OnNotifyPointFreedom;
 			}
 		}
 
-		public void TriggerItemSetFree() {
-			if (AtMaxItemSpawns) {
-				OnRoomIsFree?.Invoke(this);
-			}
+		private void SpawnGroup_OnNotifyPointFreedom(bool isFree) {
+			if (isFree)
+			{
+				_currentItemsSpawned--;
 
-			_currentItemsSpawned--;
+				if (AtMaxItemSpawns)
+					OnGroupIsFree?.Invoke(this);
+			}
+			else
+			{
+				_currentItemsSpawned++;
+			}
 		}
 
 		/// <returns>Were we able to spawn a start item?</returns>
-		public bool TrySpawnStartItem() {
-			while (!AtMaxItemSpawns && !SpawnedAllItems)
-			{
+		public void SpawnStartItem() {
+			while (!AtMaxItemSpawns && !SpawnedAllItems) {
 				var nextItem = Items[_indexer];
 				_indexer++;
 
-				if (nextItem.HasItems) {
-					SpawnItem(true, GetRandomFreePoint(), nextItem.GetItem());
-					return true;
-				}
+				SpawnItem(true, GetRandomFreePoint(), nextItem.GetItem());
 			}
-
-			return false;
-		}       
-		
-		/// <returns>Were we able to spawn a start item?</returns>
-		public bool TrySpawnItem(IItemObtainable item) {
-			while (!AtMaxItemSpawns && !SpawnedAllItems) {
-				_indexer++;
-
-				if (item.HasItems) {
-					SpawnItem(false, GetRandomFreePoint(), item.GetItem());
-					return true;
-				}
-			}
-
-			return false;
 		}
 
-		public void SpawnItem(bool savedSpawn, ItemSpawnPoint point, ItemData itemData) {
-			_currentItemsSpawned++;
+		/// <returns>Were we able to spawn a start item?</returns>
+		public bool TrySpawnItem(IItemObtainable item) {
+			if (AtMaxItemSpawns) return false;
+
+			SpawnItem(false, GetRandomFreePoint(), item.GetItem());
+			return true;
+		}
+
+		private void SpawnItem(bool savedSpawn, ItemSpawnPoint point, ItemData itemData) {
 			point.IsFree = false;
-			if (savedSpawn) SavedItemRoom.SavedRooms[point.CustomRoom.Id].SavedSpawns.Add(new SpawnInfo(point, itemData));
+			if (savedSpawn)
+				SavedItemRoom.SavedRooms[point.CustomRoom.Id].SavedSpawns.Add(new SpawnInfo(point, itemData));
 			else Spawner.SpawnItem(point, itemData);
 		}
 

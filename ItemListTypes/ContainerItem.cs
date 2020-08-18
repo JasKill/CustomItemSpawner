@@ -20,7 +20,5 @@
 			var item = _item.GetItem();
 			return new ItemData(item.Item, item.Copies * _copies);
 		}
-
-		public bool HasItems => _item.HasItems;
 	}
 }

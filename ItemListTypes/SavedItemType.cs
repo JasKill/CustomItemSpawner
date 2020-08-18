@@ -29,7 +29,5 @@ namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 			var itemType = i == 36 ? ItemType.None : (ItemType) i;
 			return new ItemData(itemType, 1);
 		}
-
-		public bool HasItems => true;
 	}
 }

@@ -1,50 +1,25 @@
 ﻿using System.Collections.Generic;
+using Exiled.API.Features;
 using MEC;
 
 namespace ArithFeather.CustomItemSpawner.Spawning {
 	internal class Spawner {
 		public static readonly Spawner Instance = new Spawner();
 
-		private static List<SpawnGroup> Rooms => SpawnPointCreator.SpawnGroups;
-		public readonly List<SpawnGroup> FreeRooms = new List<SpawnGroup>();
+		private static List<SpawnGroup> SpawnGroups => SpawnPointCreator.SpawnGroups;
 
 		/// <summary>
 		/// Called on WaitingForPlayers.
 		/// Spawns start-game items.
 		/// </summary>
-		public void Reset() {
+		public void Reset()
+		{
 			_cachedInventory = PlayerManager.localPlayer.GetComponent<Inventory>();
-			FreeRooms.Clear();
 
-			var rooms = Rooms;
-			var roomCount = rooms.Count;
-
-			for (int i = 0; i < roomCount; i++) {
-				var room = Rooms[i];
-				if (!room.AtMaxItemSpawns) {
-					FreeRooms.Add(rooms[i]);
-				}
+			var groupCount = SpawnGroups.Count;
+			for (int i = 0; i < groupCount; i++) {
+				SpawnGroups[i].SpawnStartItem();
 			}
-
-			FreeRooms.ShuffleList();
-			//ItemSpawnIO.ShuffleQueueData();
-
-			SpawnStartItems();
-		}
-
-		private void SpawnStartItems() {
-			var roomCount = FreeRooms.Count;
-
-			for (int i = roomCount - 1; i >= 0; i--) {
-				var room = FreeRooms[i];
-
-				if (room.AtMaxItemSpawns || !room.TrySpawnStartItem()) {
-					FreeRooms.RemoveAt(i);
-				}
-			}
-
-			if (FreeRooms.Count != 0)
-				SpawnStartItems();
 		}
 
 		private static Inventory _cachedInventory;

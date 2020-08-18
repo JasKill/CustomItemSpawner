@@ -9,6 +9,7 @@ namespace ArithFeather.CustomItemSpawner {
 	internal static class SpawnPointCreator {
 
 		// Populated every new game.
+		private static readonly Dictionary<string, List<ItemSpawnPoint>> FixedItemSpawnPointDictionary = new Dictionary<string, List<ItemSpawnPoint>>();
 		public static readonly List<SpawnGroup> SpawnGroups = new List<SpawnGroup>();
 		public static readonly Dictionary<string, SpawnGroup> SpawnGroupDictionary = new Dictionary<string, SpawnGroup>();
 		public static readonly Dictionary<string, List<IItemObtainable>> EndlessSpawningItemsDictionary = new Dictionary<string, List<IItemObtainable>>();
@@ -16,7 +17,6 @@ namespace ArithFeather.CustomItemSpawner {
 
 		private static PointList PointList => ItemSpawnIO.SpawnPointList;
 		private static IReadOnlyDictionary<string, SpawnGroupData> SpawnGroupItemDictionary => ItemSpawnIO.SpawnGroupItemDictionary;
-
 		private static IReadOnlyDictionary<string, SpawnGroupData> EndlessSpawnGroupItemDictionary => ItemSpawnIO.EndlessSpawnGroupItemDictionary;
 		private static IReadOnlyDictionary<string, SpawnGroupData> ContainerGroupItemDictionary => ItemSpawnIO.ContainerGroupItemDictionary;
 
@@ -36,52 +36,96 @@ namespace ArithFeather.CustomItemSpawner {
 			SpawnGroups.Clear();
 			SpawnGroupDictionary.Clear();
 			EndlessSpawningItemsDictionary.Clear();
+			FixedItemSpawnPointDictionary.Clear();
 
-			// Group up the positions and item spawns via ID's
-			foreach (var pair in spawnPointDictionary) {
-				var key = pair.Key;
-				var spawnPoints = pair.Value;
+			// wrap spawn points in ItemSpawnPoint
+			var oldFixedPointDictionary = PointList.IdGroupedFixedPoints;
 
-				if (SpawnGroupItemDictionary.TryGetValue(key, out var groupData)) {
+			foreach (var keyOldfFixedPointsGroup in oldFixedPointDictionary) {
+				var key = keyOldfFixedPointsGroup.Key;
 
-					var itemList = new List<IItemObtainable>(groupData.Items.Count +
-														 groupData.ItemLists.Count);
+				var oldSpawns = keyOldfFixedPointsGroup.Value;
+				var spawnCount = oldSpawns.Count;
 
-					// Shuffle the lists before adding them
-					groupData.Items.UnityShuffle();
-					groupData.ItemLists.UnityShuffle();
+				var newSpawns = new List<ItemSpawnPoint>();
 
-					itemList.AddRange(groupData.Items);
-					itemList.AddRange(groupData.ItemLists);
+				for (int i = 0; i < spawnCount; i++) {
+					newSpawns.Add(new ItemSpawnPoint(oldSpawns[i]));
+				}
 
-					var spawnGroup = new SpawnGroup();
+				FixedItemSpawnPointDictionary.Add(key, newSpawns);
+			}
 
-					// Convert SpawnPoint class to ItemSpawnPoint class.
-					var newSpawnPointList = new List<ItemSpawnPoint>();
-					var pointCount = spawnPoints.Count;
-					for (int i = 0; i < pointCount; i++) {
-						newSpawnPointList.Add(new ItemSpawnPoint(spawnPoints[i]));
+			// For each item group...
+			foreach (var pair in SpawnGroupItemDictionary) {
+				var groupData = pair.Value;
+				var keys = groupData.Owners;
+				var keyCount = keys.Count;
+
+				var itemSpawnPoints = new List<ItemSpawnPoint>();
+
+				// Adding spawn points from all the keys saved in ItemData.
+				for (int i = 0; i < keyCount; i++)
+				{
+					if (FixedItemSpawnPointDictionary.TryGetValue(keys[i], out var spawnPoints))
+					{
+						itemSpawnPoints.AddRange(spawnPoints);
+					}
+				}
+
+				if (itemSpawnPoints.Count == 0) continue;
+
+				var itemList = new List<IItemObtainable>(groupData.Items.Count +
+									 groupData.ItemLists.Count);
+
+				// Shuffle the lists before adding them
+				groupData.Items.UnityShuffle();
+				groupData.ItemLists.UnityShuffle();
+
+				itemList.AddRange(groupData.Items);
+				itemList.AddRange(groupData.ItemLists);
+
+				var spawnGroup = new SpawnGroup(pair.Key, itemList, itemSpawnPoints);
+
+				SpawnGroupDictionary.Add(pair.Key, spawnGroup);
+				SpawnGroups.Add(spawnGroup);
+			}
+			
+			// Endless Spawning
+			foreach (var pair in EndlessSpawnGroupItemDictionary) {
+				var groupData = pair.Value;
+
+				if (!SpawnGroupDictionary.ContainsKey(pair.Key)) {
+
+					var keys = groupData.Owners;
+					var keyCount = keys.Count;
+					var itemSpawnPoints = new List<ItemSpawnPoint>();
+
+					// Adding spawn points from all the keys saved in ItemData.
+					for (int i = 0; i < keyCount; i++) {
+						if (FixedItemSpawnPointDictionary.TryGetValue(keys[i], out var spawnPoints)) {
+							itemSpawnPoints.AddRange(spawnPoints);
+						}
 					}
 
-					spawnGroup.Initialize(key, itemList, newSpawnPointList);
-					SpawnGroupDictionary.Add(key, spawnGroup);
+					if (itemSpawnPoints.Count == 0) continue;
+
+					var spawnGroup = new SpawnGroup(pair.Key, default, itemSpawnPoints);
+					SpawnGroupDictionary.Add(pair.Key, spawnGroup);
 					SpawnGroups.Add(spawnGroup);
 				}
 
-				// Add in our endless spawns information.
-				if (EndlessSpawnGroupItemDictionary.TryGetValue(key, out groupData)) {
+				var itemList = new List<IItemObtainable>(groupData.Items.Count +
+				                                         groupData.ItemLists.Count);
 
-					var itemList = new List<IItemObtainable>(groupData.Items.Count +
-														 groupData.ItemLists.Count);
-					// Shuffle the lists before adding them
-					groupData.Items.UnityShuffle();
-					groupData.ItemLists.UnityShuffle();
+				// Shuffle the lists before adding them
+				groupData.Items.UnityShuffle();
+				groupData.ItemLists.UnityShuffle();
 
-					itemList.AddRange(groupData.Items);
-					itemList.AddRange(groupData.ItemLists);
+				itemList.AddRange(groupData.Items);
+				itemList.AddRange(groupData.ItemLists);
 
-					EndlessSpawningItemsDictionary.Add(key, itemList);
-				}
+				EndlessSpawningItemsDictionary.Add(pair.Key, itemList);
 			}
 
 			Log.Info($"Found {SpawnGroups.Count} group(s) with items to spawn.");
@@ -109,7 +153,7 @@ namespace ArithFeather.CustomItemSpawner {
 					for (int i = 0; i < itemCount; i++) {
 						var item = items[i] as ContainerItem;
 
-						if (item == null || !item.HasItems) continue;
+						if (item == null) continue;
 
 						var itemData = item.GetItem();
 

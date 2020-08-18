@@ -21,7 +21,5 @@ namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 
 			return new ItemData(ItemType.None, 0);
 		}
-
-		public bool HasItems => Items.HasItems;
 	}
 }

@@ -2,7 +2,5 @@
 	public interface IItemObtainable
 	{
 		ItemData GetItem();
-
-		bool HasItems { get; }
 	}
 }

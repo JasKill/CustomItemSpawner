@@ -11,8 +11,9 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 
 		public static event CustomItemSpawner.PickedUpItem OnPickedUpItem;
 
-		public void PickedUp() {
-			_itemSpawnPoint?.SetFree();
+		public void PickedUp()
+		{
+			_itemSpawnPoint.IsFree = true;
 
 			OnPickedUpItem?.Invoke(_itemSpawnPoint);
 
