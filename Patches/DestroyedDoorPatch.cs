@@ -8,7 +8,10 @@ namespace ArithFeather.CustomItemSpawner.Patches {
 
 		private static int _lastDoor;
 
-		private static void Prefix(bool b, Door __instance) {
+		private static void Prefix(bool b, Door __instance)
+		{
+			if (!CustomItemSpawner.Configs.IsEnabled) return;
+
 			if (b && __instance.destroyedPrefab != null && __instance.doorType != global::Door.DoorTypes.HeavyGate && !__instance.Networkdestroyed) {
 
 				var doorId = __instance.GetInstanceID();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using ArithFeather.AriToolKit;
 using ArithFeather.AriToolKit.PointEditor;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
@@ -9,13 +10,15 @@ using HarmonyLib;
 using Version = System.Version;
 
 namespace ArithFeather.CustomItemSpawner {
-	public class CustomItemSpawner : Plugin<Config> {
+	public class CustomItemSpawner : Plugin<Config>
+	{
+		public static Config Configs;
 
 		public override string Author => "Arith";
 
 		public override Version Version => new Version("2.07");
 
-		private readonly Harmony _harmony = new Harmony("customItemSpawner");
+		private readonly Harmony _harmony = new Harmony("CustomItemSpawner");
 
 		public delegate void PickedUpItem(ItemSpawnPoint itemSpawnPoint);
 		public static event PickedUpItem OnPickedUpItem;
@@ -27,7 +30,9 @@ namespace ArithFeather.CustomItemSpawner {
 		public static IReadOnlyDictionary<string, SpawnGroupData> EndlessSpawnGroupItemDictionary => ItemSpawnIO.EndlessSpawnGroupItemDictionary;
 		public static IReadOnlyDictionary<string, SpawnGroupData> ContainerGroupItemDictionary => ItemSpawnIO.ContainerGroupItemDictionary;
 
-		public override void OnEnabled() {
+		public override void OnEnabled()
+		{
+			Configs = Config;
 			base.OnEnabled();
 
 			ItemSpawnIO.Reload();
@@ -43,10 +48,8 @@ namespace ArithFeather.CustomItemSpawner {
 			PickupDisableTrigger.OnPickedUpItem += PickupDisableTrigger_OnPickedUpItem;
 		}
 
-		private void PickupDisableTrigger_OnPickedUpItem(ItemSpawnPoint itemSpawnPoint) =>
-			OnPickedUpItem?.Invoke(itemSpawnPoint);
-
 		public override void OnDisabled() {
+
 			Exiled.Events.Handlers.Server.ReloadedConfigs -= Server_ReloadedConfigs;
 			PointAPI.OnLoadSpawnPoints -= SpawnPointCreator.OnLoadSpawnPoints;
 
@@ -56,14 +59,16 @@ namespace ArithFeather.CustomItemSpawner {
 			Exiled.Events.Handlers.Server.WaitingForPlayers -= Spawner.Instance.Reset;
 			PickupDisableTrigger.OnPickedUpItem -= PickupDisableTrigger_OnPickedUpItem;
 
-			_harmony.UnpatchAll();
 			base.OnDisabled();
 		}
 
+		private void PickupDisableTrigger_OnPickedUpItem(ItemSpawnPoint itemSpawnPoint) =>
+			OnPickedUpItem?.Invoke(itemSpawnPoint);
+
+
 		private void Server_ReloadedConfigs() => ItemSpawnIO.Reload();
 
-		public static void CheckDoorItemSpawn(Door door)
-		{
+		public static void CheckDoorItemSpawn(Door door) {
 			if (SavedItemRoom.SavedRooms.Count == 0) return;
 
 			var customDoor = door.GetCustomDoor();

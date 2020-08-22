@@ -10,6 +10,7 @@ namespace ArithFeather.CustomItemSpawner.Patches {
 		private static int _lastDoorTriggered;
 
 		private static void Prefix(bool open, Door __instance) {
+			if (!CustomItemSpawner.Configs.IsEnabled) return;
 
 			if (!__instance.NetworkisOpen && open && Round.IsStarted) {
 
