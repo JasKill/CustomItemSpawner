@@ -1,16 +1,20 @@
 ﻿using System;
 using Random = UnityEngine.Random;
 
-namespace ArithFeather.CustomItemSpawner.ItemListTypes {
-	public class SavedItemType : IItemObtainable {
-		public SavedItemType(ItemType itemType = ItemType.None) {
+namespace ArithFeather.CustomItemSpawner.ItemListTypes
+{
+	public class SavedItemType : IItemObtainable
+	{
+		public SavedItemType(ItemType itemType = ItemType.None)
+		{
 			_itemType = itemType;
 		}
 
 		/// <summary>
 		/// WIld card constructor
 		/// </summary>
-		public SavedItemType() {
+		public SavedItemType()
+		{
 			_wildCard = true;
 		}
 
@@ -21,12 +25,13 @@ namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 
 		public ItemData GetItem()
 		{
-			if (!_wildCard) {
+			if (!_wildCard)
+			{
 				return new ItemData(_itemType, 1);
 			}
 
 			var i = Random.Range(0, ItemTypeLength);
-			var itemType = i == 36 ? ItemType.None : (ItemType) i;
+			var itemType = i == 36 ? ItemType.None : (ItemType)i;
 			return new ItemData(itemType, 1);
 		}
 	}

@@ -1,24 +1,36 @@
 ﻿using System.Collections.Generic;
-using ArithFeather.AriToolKit;
+using Exiled.API.Features;
+using UnityEngine;
 
-namespace ArithFeather.CustomItemSpawner.Spawning {
-	internal class SavedItemRoom {
+namespace ArithFeather.CustomItemSpawner.Spawning
+{
+	internal class SavedItemRoom : MonoBehaviour
+	{
 		public readonly List<SpawnInfo> SavedSpawns = new List<SpawnInfo>();
 
 		public bool HasBeenEntered { get; set; }
 
+		public Room Room { get; private set; }
+
 		public void SpawnSavedItems() => Spawner.SpawnItems(SavedSpawns);
 
-		public static readonly List<SavedItemRoom> SavedRooms = new List<SavedItemRoom>();
+		public static readonly Dictionary<int, SavedItemRoom> SavedRooms = new Dictionary<int, SavedItemRoom>();
 
-		public static void CreateGlobalRooms() {
+		public static void CreateGlobalRooms()
+		{
 			SavedRooms.Clear();
 
-			var rooms = Rooms.CustomRooms;
-			var roomCount = rooms.Count;
+			foreach (var room in Map.Rooms)
+			{
+				var gameObject = room.Transform.gameObject;
+				var comp = gameObject.AddComponent<SavedItemRoom>();
+				comp.Room = room;
+				SavedRooms.Add(gameObject.GetInstanceID(), comp);
+			}
 
-			for (int i = 0; i < roomCount; i++) {
-				SavedRooms.Add(new SavedItemRoom());
+			foreach (var door in Map.Doors)
+			{
+				door.gameObject.AddComponent<CustomDoor>();
 			}
 		}
 	}

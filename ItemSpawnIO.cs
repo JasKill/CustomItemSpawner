@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using ArithFeather.AriToolKit.Components;
-using ArithFeather.AriToolKit.PointEditor;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
+using ArithFeather.CustomItemSpawner.Spawning;
+using ArithFeather.Points.DataTypes;
+using ArithFeather.Points.Tools;
 using Exiled.API.Features;
 using UnityEngine;
-using SpawnPoint = ArithFeather.AriToolKit.PointEditor.Point;
 
-namespace ArithFeather.CustomItemSpawner {
-	internal static class ItemSpawnIO {
+namespace ArithFeather.CustomItemSpawner
+{
+	internal static class ItemSpawnIO
+	{
 		private const string PointDataFileName = "ItemSpawnPoints";
 		private const string ItemDataFileName = "ItemSpawnInfo";
 
@@ -33,21 +36,24 @@ namespace ArithFeather.CustomItemSpawner {
 		private static bool ItemFileExists { get; set; }
 		private static bool SpawnFileExists { get; set; }
 
-		public static void Reload() {
+		public static void Reload()
+		{
 			LoadItemData();
 
 			SpawnFileExists = FileManager.FileExists(PointDataFilePath);
-			SpawnPointList = PointAPI.GetPointList(PointDataFileName);
+			SpawnPointList = Points.Points.GetPointList(PointDataFileName);
 		}
 
-		public static void CheckFiles() {
+		public static void CheckFiles()
+		{
 			if (!ItemFileExists) CreateItemDataFile();
 			if (!SpawnFileExists) CreateDefaultSpawnPointsFile();
 		}
 
 		#region Saving Data
 
-		private static void CreateDefaultSpawnPointsFile() {
+		private static void CreateDefaultSpawnPointsFile()
+		{
 			Log.Warn("Creating new Spawn Point file using default spawn points.");
 
 			var ris = RandomItemSpawner.singleton;
@@ -58,23 +64,25 @@ namespace ArithFeather.CustomItemSpawner {
 
 			var spawnPoints = SpawnPointList.RawPoints;
 
-			for (int i = 0; i < positionDataLength; i++) {
+			for (int i = 0; i < positionDataLength; i++)
+			{
 				var dat = positionData[i];
 				var itemTransform = dat.position;
 
-				var room = itemTransform.GetComponentInParent<CustomRoom>();
+				var room = itemTransform.GetComponentInParent<SavedItemRoom>();
 
-				if (room == null) {
+				if (room == null)
+				{
 					Log.Error($"Could not find Custom Room for {dat.posID}");
 					continue;
 				}
-
-				var roomTransform = room.gameObject.transform;
+				
+				var roomTransform = room.transform;
 
 				var localItemPosition = roomTransform.InverseTransformPoint(itemTransform.position);
 				var localItemRotation = roomTransform.InverseTransformDirection(itemTransform.eulerAngles);
 
-				spawnPoints.Add(new SpawnPoint(dat.posID.ToLowerInvariant(), room.Room.Type, room.Room.Zone, localItemPosition,
+				spawnPoints.Add(new RawPoint(dat.posID.ToLowerInvariant(), room.Room.Type, localItemPosition,
 					localItemRotation));
 			}
 
@@ -126,10 +134,12 @@ namespace ArithFeather.CustomItemSpawner {
 			"# lczSpawns:lcz_armory,012,079,glassRoom,etc\n" +
 			"\n";
 
-		private static void CreateItemDataFile() {
+		private static void CreateItemDataFile()
+		{
 			Log.Warn("Creating new ItemSpawnInfo file using default items.");
 
-			using (var writer = new StreamWriter(File.Create(ItemDataFilePath))) {
+			using (var writer = new StreamWriter(File.Create(ItemDataFilePath)))
+			{
 
 				// Description
 				writer.Write(ItemSpawnTypesDescription);
@@ -140,7 +150,8 @@ namespace ArithFeather.CustomItemSpawner {
 				var names = Enum.GetNames(typeof(ItemType));
 				var nameLength = names.Length;
 
-				for (int i = 0; i < nameLength; i++) {
+				for (int i = 0; i < nameLength; i++)
+				{
 					writer.WriteLine($"# {i}={names[i]}");
 				}
 
@@ -179,7 +190,8 @@ namespace ArithFeather.CustomItemSpawner {
 
 				var keyCounter = new Dictionary<string, StringBuilder>();
 
-				for (int i = 0; i < defaultItemsSize; i++) {
+				for (int i = 0; i < defaultItemsSize; i++)
+				{
 					var item = defaultItems[i];
 
 					var key = item.posID;
@@ -187,20 +199,24 @@ namespace ArithFeather.CustomItemSpawner {
 					string itemId = string.Empty;
 
 					// Find item ID
-					for (int j = 0; j < SavedItemType.ItemTypeLength; j++) {
+					for (int j = 0; j < SavedItemType.ItemTypeLength; j++)
+					{
 						if (itemTypes[j].Equals(item.itemID.ToString(), StringComparison.InvariantCultureIgnoreCase))
 							itemId = j.ToString();
 					}
 
-					if (!string.IsNullOrWhiteSpace(itemId) && keyCounter.TryGetValue(key, out var value)) {
+					if (!string.IsNullOrWhiteSpace(itemId) && keyCounter.TryGetValue(key, out var value))
+					{
 						value.Append($",{itemId}");
 					}
-					else {
+					else
+					{
 						keyCounter.Add(key, new StringBuilder($"{key}:{itemId}"));
 					}
 				}
 
-				foreach (var stringPair in keyCounter) {
+				foreach (var stringPair in keyCounter)
+				{
 					writer.WriteLine(stringPair.Value.ToString());
 				}
 
@@ -228,24 +244,28 @@ namespace ArithFeather.CustomItemSpawner {
 				var lockerItems = LockerManager.singleton.items;
 				var lockerItemCount = lockerItems.Length;
 
-				for (int i = 0; i < lockerItemCount; i++) {
+				for (int i = 0; i < lockerItemCount; i++)
+				{
 					var lockerItem = lockerItems[i];
 					var key = lockerItem.itemTag;
 
-					var item = new SpawnableItem {
+					var item = new SpawnableItem
+					{
 						chanceOfSpawn = lockerItem.chanceOfSpawn,
 						copies = lockerItem.copies,
 						inventoryId = lockerItem.inventoryId,
 						name = lockerItem.name
 					};
 
-					if (keySortedDictionary.TryGetValue(key, out var itemList)) {
+					if (keySortedDictionary.TryGetValue(key, out var itemList))
+					{
 						itemList.Add(item);
 					}
 					else keySortedDictionary.Add(key, new List<SpawnableItem> { item });
 				}
 
-				foreach (var containers in keySortedDictionary) {
+				foreach (var containers in keySortedDictionary)
+				{
 					var key = containers.Key;
 					var itemList = containers.Value;
 					var itemListCount = itemList.Count;
@@ -254,7 +274,8 @@ namespace ArithFeather.CustomItemSpawner {
 
 					StringBuilder s = new StringBuilder();
 
-					for (int i = 0; i < itemListCount; i++) {
+					for (int i = 0; i < itemListCount; i++)
+					{
 						var item = itemList[i];
 
 						s.Append($",{(int)item.inventoryId}");
@@ -285,7 +306,8 @@ namespace ArithFeather.CustomItemSpawner {
 		/// <summary>
 		/// First pass to create the class containers references.
 		/// </summary>
-		private static void LoadItemData() {
+		private static void LoadItemData()
+		{
 			ItemFileExists = FileManager.FileExists(ItemDataFilePath);
 			if (!ItemFileExists) return;
 
@@ -297,17 +319,20 @@ namespace ArithFeather.CustomItemSpawner {
 			EndlessSpawnGroupItemDictionary.Clear();
 			ContainerGroupItemDictionary.Clear();
 
-			using (var reader = File.OpenText(ItemDataFilePath)) {
+			using (var reader = File.OpenText(ItemDataFilePath))
+			{
 
 				// Create SavedItemType instances for dictionary
 				ItemTypeList.Add(new SavedItemType()); // Wildcard
-				for (int i = 0; i < SavedItemType.ItemTypeLength; i++) {
+				for (int i = 0; i < SavedItemType.ItemTypeLength; i++)
+				{
 					ItemTypeList.Add(i == 36 ? new SavedItemType(ItemType.None) : new SavedItemType((ItemType)i));
 				}
 
 				_lastFoundSection = Section.None;
 
-				while (!reader.EndOfStream) {
+				while (!reader.EndOfStream)
+				{
 					var line = reader.ReadLine();
 
 					if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
@@ -337,11 +362,13 @@ namespace ArithFeather.CustomItemSpawner {
 		/// <summary>
 		/// Second pass to recursively populate the containers.
 		/// </summary>
-		private static void SecondPass() {
+		private static void SecondPass()
+		{
 			_lastFoundSection = Section.None;
 			var textFileLength = LoadedItemData.Count;
 
-			for (int i = textFileLength - 1; i >= 0; i--) {
+			for (int i = textFileLength - 1; i >= 0; i--)
+			{
 				var line = LoadedItemData[i];
 
 				if (CheckForSection(line)) continue;
@@ -353,7 +380,8 @@ namespace ArithFeather.CustomItemSpawner {
 
 				var key = sData[0].Trim();
 
-				if (sDataLength > 2) {
+				if (sDataLength > 2)
+				{
 					SectionKeyError(key, "Too many ':' splitters.");
 					continue;
 				}
@@ -363,20 +391,24 @@ namespace ArithFeather.CustomItemSpawner {
 
 				if (dataLength == 0) continue;
 
-				switch (_lastFoundSection) {
+				switch (_lastFoundSection)
+				{
 
 					case Section.RandomItemSelections:
 
 						LoadedItemData.RemoveAt(i);
 
-						if (ItemListDictionary.TryGetValue(key, out var itemList)) {
+						if (ItemListDictionary.TryGetValue(key, out var itemList))
+						{
 
 							var theList = new List<IItemObtainable>(dataLength);
 
-							for (int k = 0; k < dataLength; k++) {
+							for (int k = 0; k < dataLength; k++)
+							{
 								var rawItem = data[k].Trim();
 
-								if (!TryGetItemInstance(rawItem, out KeyData keyData, out IItemObtainable instance)) {
+								if (!TryGetItemInstance(rawItem, out KeyData keyData, out IItemObtainable instance))
+								{
 									if (!string.IsNullOrWhiteSpace(rawItem)) SectionKeyError(key, $"Regex could not parse [{rawItem}]");
 									continue;
 								}
@@ -384,7 +416,8 @@ namespace ArithFeather.CustomItemSpawner {
 								theList.Add(new SpawnChanceWrapper(instance, keyData.Chance, keyData.Copies));
 							}
 
-							if (theList.Count != 0) {
+							if (theList.Count != 0)
+							{
 								itemList.Items = theList;
 								continue;
 							}
@@ -399,16 +432,20 @@ namespace ArithFeather.CustomItemSpawner {
 
 						LoadedItemData.RemoveAt(i);
 
-						if (KeyGroupDictionary.TryGetValue(key, out var keyGroups)) {
+						if (KeyGroupDictionary.TryGetValue(key, out var keyGroups))
+						{
 							var groups = keyGroups.Groups;
 
-							for (int k = 0; k < dataLength; k++) {
+							for (int k = 0; k < dataLength; k++)
+							{
 								var groupKey = data[k].Trim();
 
-								if (KeyGroupDictionary.TryGetValue(groupKey, out var group)) {
+								if (KeyGroupDictionary.TryGetValue(groupKey, out var group))
+								{
 									groups.Add(group);
 								}
-								else {
+								else
+								{
 									groups.Add(new StringKey(groupKey));
 								}
 							}
@@ -424,11 +461,13 @@ namespace ArithFeather.CustomItemSpawner {
 		/// <summary>
 		/// Final pass to create all the spawn groups.
 		/// </summary>
-		private static void ThirdPass() {
+		private static void ThirdPass()
+		{
 			_lastFoundSection = Section.None;
 			var textFileLength = LoadedItemData.Count;
 
-			for (int i = textFileLength - 1; i >= 0; i--) {
+			for (int i = textFileLength - 1; i >= 0; i--)
+			{
 				var line = LoadedItemData[i];
 
 				if (CheckForSection(line)) continue;
@@ -440,7 +479,8 @@ namespace ArithFeather.CustomItemSpawner {
 
 				var key = sData[0].Trim();
 
-				if (sDataLength > 2) {
+				if (sDataLength > 2)
+				{
 					SectionKeyError(key, "Too many ':' splitters.");
 					continue;
 				}
@@ -450,7 +490,8 @@ namespace ArithFeather.CustomItemSpawner {
 
 				if (dataLength == 0) continue;
 
-				switch (_lastFoundSection) {
+				switch (_lastFoundSection)
+				{
 
 					case Section.SpawnGroupItems:
 
@@ -460,10 +501,12 @@ namespace ArithFeather.CustomItemSpawner {
 
 						bool dataAttached = false;
 
-						for (int j = 0; j < dataLength; j++) {
+						for (int j = 0; j < dataLength; j++)
+						{
 							var rawItem = data[j].Trim();
 
-							if (!TryGetItemInstance(rawItem, out KeyData keyData, out IItemObtainable instance)) {
+							if (!TryGetItemInstance(rawItem, out KeyData keyData, out IItemObtainable instance))
+							{
 								if (!string.IsNullOrWhiteSpace(rawItem))
 									SectionKeyError(key, $"Regex could not parse [{rawItem}]");
 								continue;
@@ -473,13 +516,15 @@ namespace ArithFeather.CustomItemSpawner {
 
 							var wrappedList = new SpawnChanceWrapper(instance, keyData.Chance, keyData.Copies);
 
-							if (instance.GetType() == typeof(ItemList)) {
+							if (instance.GetType() == typeof(ItemList))
+							{
 								spawnGroup.ItemLists.Add(wrappedList);
 							}
 							else spawnGroup.Items.Add(wrappedList);
 						}
 
-						if (!groupExists && dataAttached) {
+						if (!groupExists && dataAttached)
+						{
 							spawnGroup.Owners = KeyGroupDictionary.TryGetValue(key, out var group)
 								? group.GetGroups()
 								: new List<string> { key };
@@ -499,10 +544,12 @@ namespace ArithFeather.CustomItemSpawner {
 
 						dataAttached = false;
 
-						for (int j = 0; j < dataLength; j++) {
+						for (int j = 0; j < dataLength; j++)
+						{
 							var rawItem = data[j].Trim();
 
-							if (!TryGetItemInstance(rawItem, out KeyData keyData, out IItemObtainable instance)) {
+							if (!TryGetItemInstance(rawItem, out KeyData keyData, out IItemObtainable instance))
+							{
 								if (!string.IsNullOrWhiteSpace(rawItem)) SectionKeyError(key, $"Regex could not parse [{rawItem}]");
 								continue;
 							}
@@ -511,7 +558,8 @@ namespace ArithFeather.CustomItemSpawner {
 
 							var containerItem = new ContainerItem(key, instance, keyData.Chance, keyData.Copies);
 
-							if (instance.GetType() == typeof(ItemList)) {
+							if (instance.GetType() == typeof(ItemList))
+							{
 								spawnGroup.ItemLists.Add(containerItem);
 							}
 							else spawnGroup.Items.Add(containerItem);
@@ -533,10 +581,12 @@ namespace ArithFeather.CustomItemSpawner {
 
 						dataAttached = false;
 
-						for (int j = 0; j < dataLength; j++) {
+						for (int j = 0; j < dataLength; j++)
+						{
 							var rawItem = data[j].Trim();
 
-							if (!TryGetItemInstance(rawItem, out KeyData keyData, out IItemObtainable instance)) {
+							if (!TryGetItemInstance(rawItem, out KeyData keyData, out IItemObtainable instance))
+							{
 								if (!string.IsNullOrWhiteSpace(rawItem)) SectionKeyError(key, $"Regex could not parse [{rawItem}]");
 								continue;
 							}
@@ -545,12 +595,14 @@ namespace ArithFeather.CustomItemSpawner {
 
 							var wrappedList = new SpawnChanceWrapper(instance, keyData.Chance, keyData.Copies);
 
-							if (instance.GetType() == typeof(ItemList)) {
+							if (instance.GetType() == typeof(ItemList))
+							{
 								spawnGroup.ItemLists.Add(wrappedList);
 							}
 							else spawnGroup.Items.Add(wrappedList);
 						}
-						if (!groupExists && dataAttached) {
+						if (!groupExists && dataAttached)
+						{
 							spawnGroup.Owners = KeyGroupDictionary.TryGetValue(key, out var group)
 								? group.GetGroups()
 								: new List<string> { key };
@@ -567,10 +619,12 @@ namespace ArithFeather.CustomItemSpawner {
 			LoadedItemData.Clear();
 		}
 
-		private static bool TryParseKey(string key, out KeyData data) {
+		private static bool TryParseKey(string key, out KeyData data)
+		{
 			var match = KeyRegex.Match(key);
 
-			if (match.Success) {
+			if (match.Success)
+			{
 				var matchedGroups = match.Groups;
 
 				string name = matchedGroups["name"].Value;
@@ -580,11 +634,13 @@ namespace ArithFeather.CustomItemSpawner {
 				var copyGroup = matchedGroups["copies"];
 				var percentGroup = matchedGroups["chance"];
 
-				if (copyGroup.Success) {
+				if (copyGroup.Success)
+				{
 					copies = Mathf.Clamp(int.Parse(copyGroup.Value), 1, 20);
 				}
 
-				if (percentGroup.Success) {
+				if (percentGroup.Success)
+				{
 					percent = Mathf.Clamp(int.Parse(percentGroup.Value), 1, 100);
 				}
 
@@ -596,8 +652,10 @@ namespace ArithFeather.CustomItemSpawner {
 			return false;
 		}
 
-		private static bool TryGetItemInstance(string rawItem, out KeyData keyData, out IItemObtainable instance) {
-			if (!TryParseKey(rawItem, out keyData)) {
+		private static bool TryGetItemInstance(string rawItem, out KeyData keyData, out IItemObtainable instance)
+		{
+			if (!TryParseKey(rawItem, out keyData))
+			{
 				instance = null;
 				return false;
 			}
@@ -609,14 +667,17 @@ namespace ArithFeather.CustomItemSpawner {
 			return instance != null;
 		}
 
-		private static IItemObtainable GetInstance(string key) {
+		private static IItemObtainable GetInstance(string key)
+		{
 			if (key.Equals("*")) return ItemTypeList[ItemTypeList.Count - 1];
 
-			if (int.TryParse(key, out var result) && result < SavedItemType.ItemTypeLength && result >= 0) {
+			if (int.TryParse(key, out var result) && result < SavedItemType.ItemTypeLength && result >= 0)
+			{
 				return ItemTypeList[result + 1];
 			}
 
-			if (ItemListDictionary.TryGetValue(key, out var il)) {
+			if (ItemListDictionary.TryGetValue(key, out var il))
+			{
 				return il;
 			}
 
@@ -637,9 +698,11 @@ namespace ArithFeather.CustomItemSpawner {
 		private static Section _lastFoundSection;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static bool CheckForSection(string line) {
+		private static bool CheckForSection(string line)
+		{
 			var match = SectionHeaderRegex.Match(line);
-			if (match.Success && Sections.TryGetValue(match.Groups["Name"].Value, out var section)) {
+			if (match.Success && Sections.TryGetValue(match.Groups["Name"].Value, out var section))
+			{
 				_lastFoundSection = section;
 				return true;
 			}
@@ -652,7 +715,8 @@ namespace ArithFeather.CustomItemSpawner {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void ListNotExistError(string key) => SectionKeyError(key, "List does not exist!");
 
-		internal enum Section {
+		internal enum Section
+		{
 			None,
 			RandomItemSelections,
 			MergedSpawnGroups,
@@ -661,12 +725,14 @@ namespace ArithFeather.CustomItemSpawner {
 			EndlessGroups
 		}
 
-		internal readonly struct KeyData {
+		internal readonly struct KeyData
+		{
 			public readonly int Copies;
 			public readonly int Chance;
 			public readonly string Key;
 
-			public KeyData(string key, int chance, int copies) {
+			public KeyData(string key, int chance, int copies)
+			{
 				Copies = copies;
 				Chance = chance;
 				Key = key.Trim();

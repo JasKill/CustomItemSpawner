@@ -1,5 +1,7 @@
-﻿namespace ArithFeather.CustomItemSpawner.ItemListTypes {
-	public class ContainerItem : IItemObtainable {
+﻿namespace ArithFeather.CustomItemSpawner.ItemListTypes
+{
+	public class ContainerItem : IItemObtainable
+	{
 		public readonly int Chance;
 		public readonly string ContainerId;
 

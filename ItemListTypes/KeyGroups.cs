@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Exiled.API.Features;
+﻿using System.Collections.Generic;
 
-namespace ArithFeather.CustomItemSpawner.ItemListTypes {
+namespace ArithFeather.CustomItemSpawner.ItemListTypes
+{
 	public interface IKeyGroups
 	{
 		List<string> GetGroups();
@@ -12,11 +11,13 @@ namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 	{
 		public readonly List<IKeyGroups> Groups = new List<IKeyGroups>();
 
-		public List<string> GetGroups() {
+		public List<string> GetGroups()
+		{
 			var groupSize = Groups.Count;
 
 			var listOfKeys = new List<string>();
-			for (int i = 0; i < groupSize; i++) {
+			for (int i = 0; i < groupSize; i++)
+			{
 				listOfKeys.AddRange(Groups[i].GetGroups());
 			}
 
@@ -30,7 +31,7 @@ namespace ArithFeather.CustomItemSpawner.ItemListTypes {
 
 		public StringKey(string key)
 		{
-			_key = new List<string>{key};
+			_key = new List<string> { key };
 		}
 
 		public List<string> GetGroups() => _key;

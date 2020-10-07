@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
-namespace ArithFeather.CustomItemSpawner.ItemListTypes {
-
-	public class ItemList : IItemObtainable {
+namespace ArithFeather.CustomItemSpawner.ItemListTypes
+{
+	public class ItemList : IItemObtainable
+	{
 		private List<IItemObtainable> _items;
 		private int _itemSize;
 
-		public List<IItemObtainable> Items {
-			set {
+		public List<IItemObtainable> Items
+		{
+			set
+			{
 				_items = value;
 				_itemSize = value.Count;
 			}

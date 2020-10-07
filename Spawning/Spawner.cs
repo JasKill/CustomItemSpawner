@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using Exiled.API.Features;
 using MEC;
 
-namespace ArithFeather.CustomItemSpawner.Spawning {
-	internal class Spawner {
+namespace ArithFeather.CustomItemSpawner.Spawning
+{
+	internal class Spawner
+	{
 		public static readonly Spawner Instance = new Spawner();
 
 		private static List<SpawnGroup> SpawnGroups => SpawnPointCreator.SpawnGroups;
@@ -14,21 +15,24 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 		/// </summary>
 		public void Reset()
 		{
-			_cachedInventory = PlayerManager.localPlayer.GetComponent<Inventory>();
+			_cachedInventory = ReferenceHub.HostHub.inventory;
 
 			var groupCount = SpawnGroups.Count;
-			for (int i = 0; i < groupCount; i++) {
+			for (int i = 0; i < groupCount; i++)
+			{
 				SpawnGroups[i].SpawnStartItem();
 			}
 		}
 
 		private static Inventory _cachedInventory;
-		public static PickupDisableTrigger SpawnItem(ItemSpawnPoint point, ItemData itemType) {
+		public static PickupDisableTrigger SpawnItem(ItemSpawnPoint point, ItemData itemType)
+		{
 			if (itemType.Item == ItemType.None) return null;
 
 			var pickup = _cachedInventory.SetPickup(itemType.Item, -4.65664672E+11f, point.Position, point.Rotation, 0, 0, 0);
 
-			if (EndlessSpawning.EnableItemTracking) {
+			if (EndlessSpawning.EnableItemTracking)
+			{
 				var listener = pickup.gameObject.AddComponent<PickupDisableTrigger>();
 				listener.Initialize(point);
 				return listener;
@@ -39,15 +43,18 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 
 		public static void SpawnItems(List<SpawnInfo> spawns) => Timing.RunCoroutine(StaggerSpawnItems(spawns), Segment.FixedUpdate);
 
-		private static IEnumerator<float> StaggerSpawnItems(IReadOnlyList<SpawnInfo> spawns) {
+		private static IEnumerator<float> StaggerSpawnItems(IReadOnlyList<SpawnInfo> spawns)
+		{
 			var spawnCount = spawns.Count;
-			for (int i = 0; i < spawnCount; i++) {
+			for (int i = 0; i < spawnCount; i++)
+			{
 				var spawn = spawns[i];
 				var copies = spawn.ItemData.Copies;
 
 				var copyList = new List<PickupDisableTrigger>(copies);
 
-				for (int j = 0; j < copies; j++) {
+				for (int j = 0; j < copies; j++)
+				{
 					copyList.Add(SpawnItem(spawn.ItemSpawnPoint, spawn.ItemData));
 					yield return Timing.WaitForOneFrame;
 				}

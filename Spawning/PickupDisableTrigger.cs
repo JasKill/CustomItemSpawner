@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace ArithFeather.CustomItemSpawner.Spawning {
-	internal class PickupDisableTrigger : MonoBehaviour {
+namespace ArithFeather.CustomItemSpawner.Spawning
+{
+	internal class PickupDisableTrigger : MonoBehaviour
+	{
 		private ItemSpawnPoint _itemSpawnPoint;
 
 		public List<PickupDisableTrigger> Copies = new List<PickupDisableTrigger>();
@@ -18,7 +20,8 @@ namespace ArithFeather.CustomItemSpawner.Spawning {
 			OnPickedUpItem?.Invoke(_itemSpawnPoint);
 
 			var copyCount = Copies.Count;
-			for (int i = 0; i < copyCount; i++) {
+			for (int i = 0; i < copyCount; i++)
+			{
 				Destroy(Copies[i]);
 			}
 		}

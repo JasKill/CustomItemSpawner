@@ -1,4 +1,5 @@
-﻿namespace ArithFeather.CustomItemSpawner {
+﻿namespace ArithFeather.CustomItemSpawner
+{
 	public readonly struct ItemData
 	{
 		public readonly ItemType Item;

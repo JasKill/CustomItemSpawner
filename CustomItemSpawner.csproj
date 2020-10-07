@@ -94,9 +94,6 @@
     </Reference>
     <Reference Include="Mirror" HintPath="$(SCPSL)\Mirror.dll" Private="false" />
     <Reference Include="NorthwoodLib" HintPath="$(SCPSL)\NorthwoodLib.dll" Private="false" />
-    <Reference Include="Smod2">
-      <HintPath>..\Smod2\Smod2\bin\Debug\net472\Smod2.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine" HintPath="$(UNITY)\UnityEngine.dll" Private="false" />
     <Reference Include="UnityEngine.CoreModule" HintPath="$(UNITY)\UnityEngine.CoreModule.dll" Private="false" />
@@ -127,6 +124,7 @@
     <Compile Include="Spawning\SpawnInfo.cs" />
     <Compile Include="SpawnPointCreator.cs" />
     <Compile Include="Spawning\Spawner.cs" />
+    <Compile Include="Spawning\CustomDoor.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
@@ -140,9 +138,9 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AriToolKit\AriToolKit.csproj">
-      <Project>{17927087-C610-457D-89CE-DEE4816DA2FF}</Project>
-      <Name>AriToolKit</Name>
+    <ProjectReference Include="..\Points\Points.csproj">
+      <Project>{ab7bddd8-5ff5-4b17-a0b3-cb572d7c9243}</Project>
+      <Name>Points</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

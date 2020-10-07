@@ -1,8 +1,10 @@
 ﻿using HarmonyLib;
 
-namespace ArithFeather.CustomItemSpawner.Patches {
+namespace ArithFeather.CustomItemSpawner.Patches
+{
 	[HarmonyPatch(typeof(Door), "DestroyDoor")]
-	internal static class DestroyedDoorPatch {
+	internal static class DestroyedDoorPatch
+	{
 		public delegate void DoorDestroyed(Door door);
 		public static event DoorDestroyed OnDoorDestroyed;
 
@@ -12,10 +14,12 @@ namespace ArithFeather.CustomItemSpawner.Patches {
 		{
 			if (!CustomItemSpawner.Configs.IsEnabled) return;
 
-			if (b && __instance.destroyedPrefab != null && __instance.doorType != global::Door.DoorTypes.HeavyGate && !__instance.Networkdestroyed) {
+			if (b && __instance.destroyedPrefab != null && __instance.doorType != global::Door.DoorTypes.HeavyGate && !__instance.Networkdestroyed)
+			{
 
 				var doorId = __instance.GetInstanceID();
-				if (doorId != _lastDoor) {
+				if (doorId != _lastDoor)
+				{
 					_lastDoor = doorId;
 					_lastDoor = __instance.GetInstanceID();
 					OnDoorDestroyed?.Invoke(__instance);

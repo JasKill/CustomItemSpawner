@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using ArithFeather.AriToolKit;
-using ArithFeather.AriToolKit.PointEditor;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
 using ArithFeather.CustomItemSpawner.Patches;
 using ArithFeather.CustomItemSpawner.Spawning;
@@ -9,14 +6,16 @@ using Exiled.API.Features;
 using HarmonyLib;
 using Version = System.Version;
 
-namespace ArithFeather.CustomItemSpawner {
+namespace ArithFeather.CustomItemSpawner
+{
 	public class CustomItemSpawner : Plugin<Config>
 	{
+		public static readonly Version CurrentVersion = new Version(2, 8, 0);
 		public static Config Configs;
 
 		public override string Author => "Arith";
 
-		public override Version Version => new Version("2.07");
+		public override Version Version => CurrentVersion;
 
 		private readonly Harmony _harmony = new Harmony("CustomItemSpawner");
 
@@ -39,7 +38,7 @@ namespace ArithFeather.CustomItemSpawner {
 
 			_harmony.PatchAll();
 			Exiled.Events.Handlers.Server.ReloadedConfigs += Server_ReloadedConfigs;
-			PointAPI.OnLoadSpawnPoints += SpawnPointCreator.OnLoadSpawnPoints;
+			Points.Points.OnLoadSpawnPoints += SpawnPointCreator.OnLoadSpawnPoints;
 
 			DestroyedDoorPatch.OnDoorDestroyed += CheckDoorItemSpawn;
 			DoorOpenEventPatch.OnDoorOpened += CheckDoorItemSpawn;
@@ -48,10 +47,11 @@ namespace ArithFeather.CustomItemSpawner {
 			PickupDisableTrigger.OnPickedUpItem += PickupDisableTrigger_OnPickedUpItem;
 		}
 
-		public override void OnDisabled() {
+		public override void OnDisabled()
+		{
 
 			Exiled.Events.Handlers.Server.ReloadedConfigs -= Server_ReloadedConfigs;
-			PointAPI.OnLoadSpawnPoints -= SpawnPointCreator.OnLoadSpawnPoints;
+			Points.Points.OnLoadSpawnPoints -= SpawnPointCreator.OnLoadSpawnPoints;
 
 			DestroyedDoorPatch.OnDoorDestroyed -= CheckDoorItemSpawn;
 			DoorOpenEventPatch.OnDoorOpened -= CheckDoorItemSpawn;
@@ -68,24 +68,26 @@ namespace ArithFeather.CustomItemSpawner {
 
 		private void Server_ReloadedConfigs() => ItemSpawnIO.Reload();
 
-		public static void CheckDoorItemSpawn(Door door) {
+		public static void CheckDoorItemSpawn(Door door)
+		{
 			if (SavedItemRoom.SavedRooms.Count == 0) return;
 
-			var customDoor = door.GetCustomDoor();
+			var customDoor = door.GetComponent<CustomDoor>();
 
-			CheckRoomItemsSpawned(customDoor.Room1.Id);
+			CheckRoom(customDoor.Room1);
 
-			if (customDoor.HasTwoRooms) {
-				CheckRoomItemsSpawned(customDoor.Room2.Id);
+			if (customDoor.HasTwoRooms)
+			{
+				CheckRoom(customDoor.Room2);
 			}
-		}
 
-		public static void CheckRoomItemsSpawned(int id) {
-			var room = SavedItemRoom.SavedRooms[id];
-
-			if (room != null && !room.HasBeenEntered) {
-				room.HasBeenEntered = true;
-				room.SpawnSavedItems();
+			void CheckRoom(SavedItemRoom savedRoom)
+			{
+				if (savedRoom != null && !savedRoom.HasBeenEntered)
+				{
+					savedRoom.HasBeenEntered = true;
+					savedRoom.SpawnSavedItems();
+				}
 			}
 		}
 	}

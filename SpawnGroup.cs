@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
-using ArithFeather.AriToolKit;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
 using ArithFeather.CustomItemSpawner.Spawning;
+using ArithFeather.Points.Tools;
 using Exiled.API.Features;
 
-namespace ArithFeather.CustomItemSpawner {
-	public class SpawnGroup {
+namespace ArithFeather.CustomItemSpawner
+{
+	public class SpawnGroup
+	{
 		public delegate void GroupIsFree(SpawnGroup spawnGroup);
 		public static event GroupIsFree OnGroupIsFree;
 
@@ -20,7 +22,8 @@ namespace ArithFeather.CustomItemSpawner {
 		private int _currentItemsSpawned;
 		private int _indexer;
 
-		public SpawnGroup(string id, List<IItemObtainable> items, List<ItemSpawnPoint> points) {
+		public SpawnGroup(string id, List<IItemObtainable> items, List<ItemSpawnPoint> points)
+		{
 			Id = id;
 			Items = items ?? (new List<IItemObtainable>());
 			Points = points;
@@ -28,12 +31,14 @@ namespace ArithFeather.CustomItemSpawner {
 
 			// Hook up to spawn point event
 			var pointCount = points.Count;
-			for (int i = 0; i < pointCount; i++) {
+			for (int i = 0; i < pointCount; i++)
+			{
 				points[i].OnNotifyPointFreedom += SpawnGroup_OnNotifyPointFreedom;
 			}
 		}
 
-		private void SpawnGroup_OnNotifyPointFreedom(bool isFree) {
+		private void SpawnGroup_OnNotifyPointFreedom(bool isFree)
+		{
 			if (isFree)
 			{
 				_currentItemsSpawned--;
@@ -47,9 +52,10 @@ namespace ArithFeather.CustomItemSpawner {
 			}
 		}
 
-		/// <returns>Were we able to spawn a start item?</returns>
-		public void SpawnStartItem() {
-			while (!AtMaxItemSpawns && !SpawnedAllItems) {
+		public void SpawnStartItem()
+		{
+			while (!AtMaxItemSpawns && !SpawnedAllItems)
+			{
 				var nextItem = Items[_indexer];
 				_indexer++;
 
@@ -58,28 +64,41 @@ namespace ArithFeather.CustomItemSpawner {
 		}
 
 		/// <returns>Were we able to spawn a start item?</returns>
-		public bool TrySpawnItem(IItemObtainable item) {
+		public bool TrySpawnItem(IItemObtainable item)
+		{
 			if (AtMaxItemSpawns) return false;
 
 			SpawnItem(false, GetRandomFreePoint(), item.GetItem());
 			return true;
 		}
 
-		private void SpawnItem(bool savedSpawn, ItemSpawnPoint point, ItemData itemData) {
+		private void SpawnItem(bool savedSpawn, ItemSpawnPoint point, ItemData itemData)
+		{
 			point.IsFree = false;
 			if (savedSpawn)
-				SavedItemRoom.SavedRooms[point.CustomRoom.Id].SavedSpawns.Add(new SpawnInfo(point, itemData));
-			else Spawner.SpawnItem(point, itemData);
+			{
+				if (SavedItemRoom.SavedRooms.TryGetValue(point.Room.Transform.gameObject.GetInstanceID(), out var savedRoom))
+					savedRoom.SavedSpawns.Add(new SpawnInfo(point, itemData));
+				else
+					Log.Error("Could not located [SavedItemRoom.SavedRoom].");
+			}
+			else
+			{
+				Spawner.SpawnItem(point, itemData);
+			}
 		}
 
-		public ItemSpawnPoint GetRandomFreePoint() {
+		public ItemSpawnPoint GetRandomFreePoint()
+		{
 			Points.UnityShuffle();
 			var pointsLength = Points.Count;
 
-			for (int n = 0; n < pointsLength; n++) {
+			for (int n = 0; n < pointsLength; n++)
+			{
 				var spawnPoint = Points[n];
 
-				if (spawnPoint.IsFree) {
+				if (spawnPoint.IsFree)
+				{
 					return spawnPoint;
 				}
 			}
