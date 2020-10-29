@@ -4,17 +4,22 @@ using UnityEngine;
 
 namespace ArithFeather.CustomItemSpawner.Spawning
 {
-	internal class SavedItemRoom : MonoBehaviour
+	internal class SavedItemRoom
 	{
 		public readonly List<SpawnInfo> SavedSpawns = new List<SpawnInfo>();
 
 		public bool HasBeenEntered { get; set; }
 
-		public Room Room { get; private set; }
+		public Room Room { get; }
 
 		public void SpawnSavedItems() => Spawner.SpawnItems(SavedSpawns);
 
 		public static readonly Dictionary<int, SavedItemRoom> SavedRooms = new Dictionary<int, SavedItemRoom>();
+
+		public SavedItemRoom(Room room)
+		{
+			Room = room;
+		}
 
 		public static void CreateGlobalRooms()
 		{
@@ -22,10 +27,8 @@ namespace ArithFeather.CustomItemSpawner.Spawning
 
 			foreach (var room in Map.Rooms)
 			{
-				var gameObject = room.Transform.gameObject;
-				var comp = gameObject.AddComponent<SavedItemRoom>();
-				comp.Room = room;
-				SavedRooms.Add(gameObject.GetInstanceID(), comp);
+				var gameObject = room.transform.gameObject;
+				SavedRooms.Add(gameObject.GetInstanceID(), new SavedItemRoom(room));
 			}
 
 			foreach (var door in Map.Doors)

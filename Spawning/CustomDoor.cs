@@ -5,7 +5,6 @@ namespace ArithFeather.CustomItemSpawner.Spawning
 {
 	internal class CustomDoor : MonoBehaviour
 	{
-		public Door Door { get; }
 		public SavedItemRoom Room1 { get; }
 		public SavedItemRoom Room2 { get; }
 		public bool HasTwoRooms { get; }
@@ -14,22 +13,34 @@ namespace ArithFeather.CustomItemSpawner.Spawning
 
 		private CustomDoor()
 		{
-			Door = GetComponent<Door>();
-			var upperPos = transform.position + Vector3.up / 2;
-
-			if (Physics.RaycastNonAlloc(upperPos + transform.forward, Vector3.down, cachedRaycastHIts, 5,
-				1 << 0) == 1)
+			try
 			{
-				Room1 = cachedRaycastHIts[0].transform.GetComponentInParent<SavedItemRoom>();
-			}
+				var upperPos = transform.position + Vector3.up / 2;
 
-			if (Physics.RaycastNonAlloc(upperPos - transform.forward, Vector3.down, cachedRaycastHIts, 5,
-				1 << 0) == 1)
+				if (Physics.RaycastNonAlloc(upperPos + transform.forward, Vector3.down, cachedRaycastHIts, 5,
+					1 << 0) == 1)
+				{
+					var room1 = Map.FindParentRoom(cachedRaycastHIts[0].transform.gameObject);
+					if (room1 != null)
+						Room1 = SavedItemRoom.SavedRooms[room1.gameObject.GetInstanceID()];
+				}
+
+				if (Physics.RaycastNonAlloc(upperPos - transform.forward, Vector3.down, cachedRaycastHIts, 5,
+					1 << 0) == 1)
+				{
+					var room2 = Map.FindParentRoom(cachedRaycastHIts[0].transform.gameObject);
+					if (room2 != null)
+						Room2 = SavedItemRoom.SavedRooms[room2.gameObject.GetInstanceID()];
+				}
+
+				HasTwoRooms = (Room1 != null && Room1.Room != null &&
+				               Room2 != null && Room2.Room != null &&
+				               Room1.Room.gameObject != Room2.Room.gameObject);
+			}
+			catch
 			{
-				Room2 = cachedRaycastHIts[0].transform.GetComponentInParent<SavedItemRoom>();
+				Log.Error($"Error while trying to find parent rooms for {name}");
 			}
-
-			HasTwoRooms = Room1?.gameObject != Room2?.gameObject;
 		}
 	}
 }

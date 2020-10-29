@@ -69,7 +69,7 @@ namespace ArithFeather.CustomItemSpawner
 				var dat = positionData[i];
 				var itemTransform = dat.position;
 
-				var room = itemTransform.GetComponentInParent<SavedItemRoom>();
+				var room = itemTransform.GetComponentInParent<Room>();
 
 				if (room == null)
 				{
@@ -82,7 +82,7 @@ namespace ArithFeather.CustomItemSpawner
 				var localItemPosition = roomTransform.InverseTransformPoint(itemTransform.position);
 				var localItemRotation = roomTransform.InverseTransformDirection(itemTransform.eulerAngles);
 
-				spawnPoints.Add(new RawPoint(dat.posID.ToLowerInvariant(), room.Room.Type, localItemPosition,
+				spawnPoints.Add(new RawPoint(dat.posID.ToLowerInvariant(), room.Type, localItemPosition,
 					localItemRotation));
 			}
 
@@ -632,7 +632,7 @@ namespace ArithFeather.CustomItemSpawner
 				int percent = 100;
 
 				var copyGroup = matchedGroups["copies"];
-				var percentGroup = matchedGroups["chance"];
+				var percentGroup = matchedGroups["percent"];
 
 				if (copyGroup.Success)
 				{

@@ -10,7 +10,7 @@ namespace ArithFeather.CustomItemSpawner
 {
 	public class CustomItemSpawner : Plugin<Config>
 	{
-		public static readonly Version CurrentVersion = new Version(2, 8, 0);
+		public static readonly Version CurrentVersion = new Version(2, 8, 1);
 		public static Config Configs;
 
 		public override string Author => "Arith";
