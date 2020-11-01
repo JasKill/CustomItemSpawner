@@ -29,7 +29,9 @@ namespace ArithFeather.CustomItemSpawner.Spawning
 		{
 			if (itemType.Item == ItemType.None) return null;
 
-			var pickup = _cachedInventory.SetPickup(itemType.Item, -4.65664672E+11f, point.Position, point.Rotation, 0, 0, 0);
+			// -4.65664672E+11f Not sure what this is for durability.
+
+			var pickup = _cachedInventory.SetPickup(itemType.Item, ReferenceHub.LocalHub.inventory.availableItems[(int)itemType.Item].durability, point.Position, point.Rotation, 0, 0, 0);
 
 			if (EndlessSpawning.EnableItemTracking)
 			{
@@ -56,7 +58,9 @@ namespace ArithFeather.CustomItemSpawner.Spawning
 				for (int j = 0; j < copies; j++)
 				{
 					copyList.Add(SpawnItem(spawn.ItemSpawnPoint, spawn.ItemData));
-					yield return Timing.WaitForOneFrame;
+
+					if (j + 1 < copies)
+						yield return Timing.WaitForOneFrame;
 				}
 
 				for (int j = 0; j < copies; j++)
@@ -73,6 +77,8 @@ namespace ArithFeather.CustomItemSpawner.Spawning
 						}
 					}
 				}
+
+				yield return Timing.WaitForOneFrame;
 			}
 		}
 	}
