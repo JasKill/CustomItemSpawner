@@ -2,8 +2,8 @@
 
 namespace ArithFeather.CustomItemSpawner.Patches
 {
-	[HarmonyPatch(typeof(DoorTriggerManager), "Trigger", typeof(string))]
-	internal static class StopDoorTriggerPatch
+	[HarmonyPatch(typeof(HostItemSpawner), "Spawn")]
+	internal static class StopItemSpawnPatch
 	{
 		private static bool Prefix()
 		{

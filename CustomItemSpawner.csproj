@@ -122,7 +122,7 @@
     <Compile Include="Spawning\PickupDisableTrigger.cs" />
     <Compile Include="ItemSpawnPoint.cs" />
     <Compile Include="Patches\DestroyedDoorPatch.cs" />
-    <Compile Include="Patches\StopDoorTriggerPatch.cs" />
+    <Compile Include="Patches\StopItemSpawnPatch.cs" />
     <Compile Include="CustomItemSpawner.cs" />
     <Compile Include="ItemListTypes\QueuedList.cs" />
     <Compile Include="Spawning\SpawnInfo.cs" />
