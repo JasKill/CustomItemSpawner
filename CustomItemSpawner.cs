@@ -4,13 +4,14 @@ using ArithFeather.CustomItemSpawner.Patches;
 using ArithFeather.CustomItemSpawner.Spawning;
 using Exiled.API.Features;
 using HarmonyLib;
+using UnityEngine;
 using Version = System.Version;
 
 namespace ArithFeather.CustomItemSpawner
 {
 	public class CustomItemSpawner : Plugin<Config>
 	{
-		public static readonly Version CurrentVersion = new Version(2, 8, 3);
+		public static readonly Version CurrentVersion = new Version(2, 8, 4);
 		public static Config Configs;
 
 		public override string Author => "Arith";
@@ -68,6 +69,10 @@ namespace ArithFeather.CustomItemSpawner
 
 		private void Server_ReloadedConfigs() => ItemSpawnIO.Reload();
 
+		/// <summary>
+		/// Will attempt to spawn items for the rooms this door connects to.
+		/// </summary>
+		/// <param name="door"></param>
 		public static void CheckDoorItemSpawn(Door door)
 		{
 			if (SavedItemRoom.SavedRooms.Count == 0) return;
@@ -80,14 +85,26 @@ namespace ArithFeather.CustomItemSpawner
 			{
 				CheckRoom(customDoor.Room2);
 			}
+		}
 
-			void CheckRoom(SavedItemRoom savedRoom)
+		/// <summary>
+		/// Will attempt to spawn items for the room.
+		/// </summary>
+		/// <param name="room"></param>
+		public static void CheckRoomItemSpawn(GameObject room)
+		{
+			if (SavedItemRoom.SavedRooms.TryGetValue(room.GetInstanceID(), out var itemRoom))
 			{
-				if (savedRoom != null && !savedRoom.HasBeenEntered)
-				{
-					savedRoom.HasBeenEntered = true;
-					savedRoom.SpawnSavedItems();
-				}
+				CheckRoom(itemRoom);
+			}
+		}
+
+		private static void CheckRoom(SavedItemRoom savedRoom)
+		{
+			if (savedRoom != null && !savedRoom.HasBeenEntered)
+			{
+				savedRoom.HasBeenEntered = true;
+				savedRoom.SpawnSavedItems();
 			}
 		}
 	}
