@@ -58,8 +58,9 @@ namespace ArithFeather.CustomItemSpawner
 			{
 				var nextItem = Items[_indexer];
 				_indexer++;
-
-				SpawnItem(true, GetRandomFreePoint(), nextItem.GetItem());
+				var item = nextItem.GetItem();
+				if (item.Item != ItemType.None)
+					SpawnItem(true, GetRandomFreePoint(), item);
 			}
 		}
 
@@ -68,7 +69,9 @@ namespace ArithFeather.CustomItemSpawner
 		{
 			if (AtMaxItemSpawns) return false;
 
-			SpawnItem(false, GetRandomFreePoint(), item.GetItem());
+			var itemInstance = item.GetItem();
+			if (itemInstance.Item != ItemType.None)
+				SpawnItem(false, GetRandomFreePoint(), itemInstance);
 			return true;
 		}
 

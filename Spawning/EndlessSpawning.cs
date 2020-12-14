@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
-using ArithFeather.Points;
 using ArithFeather.Points.Tools;
 
 namespace ArithFeather.CustomItemSpawner.Spawning
