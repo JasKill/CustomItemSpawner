@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using ArithFeather.CustomItemSpawner.ItemListTypes;
-using ArithFeather.CustomItemSpawner.Patches;
 using ArithFeather.CustomItemSpawner.Spawning;
 using Exiled.API.Features;
 using HarmonyLib;
+using Interactables.Interobjects.DoorUtils;
 using UnityEngine;
 using Version = System.Version;
 
@@ -41,8 +41,7 @@ namespace ArithFeather.CustomItemSpawner
 			Exiled.Events.Handlers.Server.ReloadedConfigs += Server_ReloadedConfigs;
 			Points.Points.OnLoadSpawnPoints += SpawnPointCreator.OnLoadSpawnPoints;
 
-			DestroyedDoorPatch.OnDoorDestroyed += CheckDoorItemSpawn;
-			DoorOpenEventPatch.OnDoorOpened += CheckDoorItemSpawn;
+			DoorEvents.OnDoorAction += OnDoorEvent;
 
 			Exiled.Events.Handlers.Server.WaitingForPlayers += Spawner.Instance.Reset;
 			PickupDisableTrigger.OnPickedUpItem += PickupDisableTrigger_OnPickedUpItem;
@@ -54,14 +53,16 @@ namespace ArithFeather.CustomItemSpawner
 			Exiled.Events.Handlers.Server.ReloadedConfigs -= Server_ReloadedConfigs;
 			Points.Points.OnLoadSpawnPoints -= SpawnPointCreator.OnLoadSpawnPoints;
 
-			DestroyedDoorPatch.OnDoorDestroyed -= CheckDoorItemSpawn;
-			DoorOpenEventPatch.OnDoorOpened -= CheckDoorItemSpawn;
+			DoorEvents.OnDoorAction -= OnDoorEvent;
 
 			Exiled.Events.Handlers.Server.WaitingForPlayers -= Spawner.Instance.Reset;
 			PickupDisableTrigger.OnPickedUpItem -= PickupDisableTrigger_OnPickedUpItem;
 
 			base.OnDisabled();
 		}
+
+		private void OnDoorEvent(DoorVariant variant, DoorAction action, ReferenceHub user) =>
+			CheckDoorItemSpawn(variant);
 
 		private void PickupDisableTrigger_OnPickedUpItem(ItemSpawnPoint itemSpawnPoint) =>
 			OnPickedUpItem?.Invoke(itemSpawnPoint);
@@ -73,7 +74,7 @@ namespace ArithFeather.CustomItemSpawner
 		/// Will attempt to spawn items for the rooms this door connects to.
 		/// </summary>
 		/// <param name="door"></param>
-		public static void CheckDoorItemSpawn(Door door)
+		public static void CheckDoorItemSpawn(DoorVariant door)
 		{
 			if (SavedItemRoom.SavedRooms.Count == 0) return;
 

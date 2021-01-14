@@ -59,6 +59,7 @@
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -71,7 +72,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp" HintPath="$(SCPSL)\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp-firstpass" HintPath="$(SCPSL)\Assembly-CSharp-firstpass.dll" Private="false" />
     <Reference Include="DissonanceVoip" HintPath="$(SCPSL)\DissonanceVoip.dll" Private="false" />
     <Reference Include="Exiled.API">
@@ -95,9 +98,8 @@
     <Reference Include="Mirror" HintPath="$(SCPSL)\Mirror.dll" Private="false" />
     <Reference Include="NorthwoodLib" HintPath="$(SCPSL)\NorthwoodLib.dll" Private="false" />
     <Reference Include="System" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="UnityEngine">
       <HintPath>$(UNITY)\UnityEngine.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule" HintPath="$(UNITY)\UnityEngine.CoreModule.dll" Private="false" />
@@ -113,7 +115,6 @@
     <Compile Include="ItemListTypes\IItemObtainable.cs" />
     <Compile Include="ItemListTypes\ItemList.cs" />
     <Compile Include="ItemSpawnIO.cs" />
-    <Compile Include="Patches\DoorOpenEventPatch.cs" />
     <Compile Include="Patches\OnContainerGeneratePatch.cs" />
     <Compile Include="Spawning\SavedItemRoom.cs" />
     <Compile Include="SpawnGroup.cs" />
@@ -121,7 +122,6 @@
     <Compile Include="ItemListTypes\SavedItemType.cs" />
     <Compile Include="Spawning\PickupDisableTrigger.cs" />
     <Compile Include="ItemSpawnPoint.cs" />
-    <Compile Include="Patches\DestroyedDoorPatch.cs" />
     <Compile Include="Patches\StopItemSpawnPatch.cs" />
     <Compile Include="CustomItemSpawner.cs" />
     <Compile Include="ItemListTypes\QueuedList.cs" />
@@ -143,7 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Points\Points.csproj">
-      <Project>{ab7bddd8-5ff5-4b17-a0b3-cb572d7c9243}</Project>
+      <Project>{AB7BDDD8-5FF5-4B17-A0B3-CB572D7C9243}</Project>
       <Name>Points</Name>
     </ProjectReference>
   </ItemGroup>

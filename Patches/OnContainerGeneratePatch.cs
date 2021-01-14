@@ -6,10 +6,10 @@ namespace ArithFeather.CustomItemSpawner.Patches
 	internal static class OnContainerGeneratePatch
 	{
 
-		private static void Prefix(int seed)
+		private static void Prefix()
 		{
 			if (!CustomItemSpawner.Configs.IsEnabled) return;
-			SpawnPointCreator.OnLoadContainers(seed);
+			SpawnPointCreator.OnLoadContainers();
 		}
 	}
 }

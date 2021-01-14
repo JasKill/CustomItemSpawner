@@ -143,10 +143,8 @@ namespace ArithFeather.CustomItemSpawner
 			Log.Info($"Found {SpawnGroups.Count} group(s) with items to spawn.");
 		}
 
-		public static void OnLoadContainers(int seed)
+		public static void OnLoadContainers()
 		{
-			UnityEngine.Random.InitState(seed);
-
 			SpawnableItems.Clear();
 
 			foreach (var pair in ContainerGroupItemDictionary)
