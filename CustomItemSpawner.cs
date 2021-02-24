@@ -11,12 +11,11 @@ namespace ArithFeather.CustomItemSpawner
 {
 	public class CustomItemSpawner : Plugin<Config>
 	{
-		public static readonly Version CurrentVersion = new Version(2, 8, 5);
 		public static Config Configs;
 
 		public override string Author => "Arith";
-
-		public override Version Version => CurrentVersion;
+		public override Version Version => new Version(2, 8, 6);
+		public override Version RequiredExiledVersion => new Version(2, 1, 3);
 
 		private readonly Harmony _harmony = new Harmony("CustomItemSpawner");
 
@@ -33,7 +32,6 @@ namespace ArithFeather.CustomItemSpawner
 		public override void OnEnabled()
 		{
 			Configs = Config;
-			base.OnEnabled();
 
 			ItemSpawnIO.Reload();
 
@@ -45,11 +43,12 @@ namespace ArithFeather.CustomItemSpawner
 
 			Exiled.Events.Handlers.Server.WaitingForPlayers += Spawner.Instance.Reset;
 			PickupDisableTrigger.OnPickedUpItem += PickupDisableTrigger_OnPickedUpItem;
+
+			base.OnEnabled();
 		}
 
 		public override void OnDisabled()
 		{
-
 			Exiled.Events.Handlers.Server.ReloadedConfigs -= Server_ReloadedConfigs;
 			Points.Points.OnLoadSpawnPoints -= SpawnPointCreator.OnLoadSpawnPoints;
 
